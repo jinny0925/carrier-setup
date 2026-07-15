@@ -23,21 +23,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 .login{min-height:100vh;display:grid;place-items:center}.login-card{width:min(420px,92vw);background:#fff;padding:34px;border-radius:18px;box-shadow:var(--shadow);text-align:center;border:1px solid var(--line)}
 .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 66px)}
 .sidebar{background:#14213a;color:#fff;padding:20px 16px}.nav-title{font-size:12px;color:#9fb0cd;margin:18px 10px 8px}.nav-item{padding:11px 12px;border-radius:9px;margin-bottom:5px;cursor:pointer}.nav-item.active{background:#273a5f}.nav-item:hover{background:#203253}
-.main{padding:22px;overflow:auto}.page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.page-head h1{margin:0;font-size:25px}
+.main{padding:22px;overflow:auto}.page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.page-head h1{margin:0;font-size:25px}.detail-sticky-head{position:sticky;top:66px;z-index:18;background:var(--bg);padding:12px 0 10px;margin-top:-12px;border-bottom:1px solid #e5eaf2}
 .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.summary-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}.summary-card strong{font-size:24px;display:block}
 .filters{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:9px;background:#fff;border:1px solid var(--line);padding:12px;border-radius:12px;margin-bottom:14px}
 .project-table{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px solid #e9edf3;text-align:left;vertical-align:middle}th{background:#f7f9fc;font-size:12px;color:#5d687a}.clickable{cursor:pointer}.clickable:hover{background:#f8faff}
 .badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}.b-blue{background:#edf2ff;color:#3158d3}.b-green{background:#eaf8ef;color:#18763a}.b-orange{background:#fff3df;color:#a85a00}.b-gray{background:#f0f2f5;color:#5f6774}
 .progress{height:8px;background:#e7ebf1;border-radius:999px;overflow:hidden}.progress div{height:100%;background:var(--primary)}
-.detail-layout{display:grid;grid-template-columns:minmax(620px,1.55fr) minmax(360px,.85fr);gap:16px}
+.detail-layout{display:grid;grid-template-columns:minmax(620px,1.55fr) minmax(360px,.85fr);gap:16px;align-items:start}
 .panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 10px rgba(30,45,75,.035)}
 .panel-head{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .panel-body{padding:16px}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{background:#eff4ff;color:#3158d3;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
 .category{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}.cat-head{padding:12px 13px;background:#fafbfe;display:flex;justify-content:space-between;align-items:center}.cat-title{font-weight:900}
 .item-row{display:grid;grid-template-columns:44px minmax(240px,1fr) 115px 70px 70px 70px;align-items:center;border-top:1px solid #edf0f4;padding:8px 10px;gap:7px}.item-row:hover{background:#fbfcff}.item-title{font-weight:700}.item-audit{font-size:11px;color:var(--muted);margin-top:3px}
 .icon-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 8px}.icon-btn:hover{background:#f3f6fb}.add-row{border:1px dashed #8ea8ff;color:#3158d3;text-align:center;padding:10px;border-radius:9px;cursor:pointer;margin:10px}
-.detail-empty{padding:60px 20px;text-align:center;color:var(--muted)}.detail-form label{display:block;font-size:12px;color:#5e697b;margin:13px 0 5px}.detail-form input,.detail-form select,.detail-form textarea{width:100%}.detail-form textarea{min-height:92px;resize:vertical}.detail-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+.detail-empty{padding:60px 20px;text-align:center;color:var(--muted)}.sticky-detail-panel{position:sticky;top:145px;max-height:calc(100vh - 160px);overflow:auto}.detail-form label{display:block;font-size:12px;color:#5e697b;margin:13px 0 5px}.detail-form input,.detail-form select,.detail-form textarea{width:100%}.detail-form textarea{min-height:92px;resize:vertical}.detail-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.info-box{background:#f8faff;border:1px solid var(--line);border-radius:9px;padding:10px}
 .modal-bg{position:fixed;inset:0;background:rgba(10,20,40,.45);display:grid;place-items:center;z-index:80;padding:18px}.modal{width:min(980px,96vw);max-height:93vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:var(--shadow)}
 .modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-body{padding:20px}
@@ -46,7 +46,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 .scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.scope-card{border:1px solid var(--line);border-radius:11px;padding:13px;cursor:pointer;min-height:105px}.scope-card.selected{border-color:var(--primary);background:var(--primary-soft)}.scope-card strong{display:block;margin-bottom:6px}.scope-card input{margin-right:6px}
 .preview-category{border:1px solid var(--line);border-radius:10px;margin-bottom:10px}.preview-head{padding:10px 12px;background:#fafbfe;font-weight:800}.preview-item{display:grid;grid-template-columns:1fr 80px 45px;gap:8px;align-items:center;padding:7px 10px;border-top:1px solid #edf0f4}
 .save-state{font-size:12px;color:var(--muted)}.save-state.ok{color:var(--green)}.save-state.fail{color:var(--red)}
-@media(max-width:1100px){.detail-layout{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.summary{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.sidebar{display:none}.scope-grid{grid-template-columns:1fr 1fr}}
+.document-grid{display:grid;grid-template-columns:repeat(3,minmax(240px,1fr));gap:12px}.document-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.document-card h3{margin:0 0 7px;font-size:15px}.document-link{display:inline-block;margin-top:9px;color:var(--primary);font-weight:800;text-decoration:none}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.settings-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px}.settings-card h3{margin-top:0}.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #edf0f4}@media(max-width:1100px){.detail-layout{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.summary{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.sidebar{display:none}.scope-grid{grid-template-columns:1fr 1fr}.sticky-detail-panel{position:static;max-height:none}.detail-sticky-head{top:66px}.document-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -60,7 +60,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 <div class="nav-item active" id="navProjects">▣ 프로젝트 목록</div>
 <div class="nav-item" id="navTemplates">▤ 템플릿 관리</div>
 <div class="nav-title">SYSTEM</div>
-<div class="nav-item">▧ 자료실</div><div class="nav-item">⚙ 설정</div>
+<div class="nav-item" id="navDocuments">▧ 자료실</div><div class="nav-item" id="navSettings">⚙ 설정</div>
 </aside>
 <main class="main">
 <section id="projectPage">
@@ -71,14 +71,14 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 </section>
 
 <section id="detailPage" class="hidden">
-<div class="page-head"><div><button id="backBtn" class="ghost">← 목록</button><h1 id="detailTitle" style="display:inline-block;margin-left:10px"></h1><div id="detailSub" class="muted" style="margin-left:92px"></div></div><div><button id="editProjectBtn" class="ghost">프로젝트 정보 수정</button> <button id="deleteProjectBtn" class="danger">프로젝트 삭제</button></div></div>
+<div class="page-head detail-sticky-head"><div><button id="backBtn" class="ghost">← 목록</button><h1 id="detailTitle" style="display:inline-block;margin-left:10px"></h1><div id="detailSub" class="muted" style="margin-left:92px"></div></div><div><button id="editProjectBtn" class="ghost">프로젝트 정보 수정</button> <button id="deleteProjectBtn" class="danger">프로젝트 삭제</button></div></div>
 <div class="detail-layout">
 <div>
 <div class="panel" style="margin-bottom:14px"><div class="panel-head"><div><strong>이 프로젝트에 적용된 확인 범위</strong><div class="small">프로젝트 생성 시 선택한 대분류입니다. 범위를 추가하면 해당 그룹의 기본 체크항목을 불러올 수 있습니다.</div></div><button id="scopeEditBtn" class="ghost">범위 수정</button></div><div class="panel-body"><div id="scopeChips" class="chips"></div></div></div>
 <div class="panel"><div class="panel-head"><div><strong>체크리스트 항목 구성</strong><div id="progressText" class="small"></div></div><div><button id="loadDefaultBtn" class="ghost">기본 항목 불러오기</button></div></div><div id="checklistArea" class="panel-body"></div></div>
 </div>
 <div>
-<div class="panel"><div class="panel-head"><strong>체크 항목 상세 관리</strong></div><div id="itemDetail" class="panel-body detail-empty">왼쪽 체크리스트에서 항목을 선택하세요.</div></div>
+<div class="panel sticky-detail-panel"><div class="panel-head"><strong>체크 항목 상세 관리</strong></div><div id="itemDetail" class="panel-body detail-empty">왼쪽 체크리스트에서 항목을 선택하세요.</div></div>
 </div>
 </div>
 </section>
@@ -86,6 +86,18 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 <section id="templatePage" class="hidden">
 <div class="page-head"><div><h1>템플릿 관리</h1><div class="muted">확인 범위별 기본 항목을 수정합니다.</div></div><button id="backProjectBtn" class="ghost">프로젝트 목록</button></div>
 <div class="panel"><div class="panel-body"><div id="templateManager"></div></div></div>
+</section>
+<section id="documentsPage" class="hidden">
+<div class="page-head"><div><h1>자료실</h1><div class="muted">체크항목에 등록된 근거 자료 링크를 프로젝트별로 모아봅니다.</div></div><button id="refreshDocumentsBtn" class="ghost">새로고침</button></div>
+<div class="filters" style="grid-template-columns:2fr 1fr"><input id="documentSearch" placeholder="프로젝트명, 배송사, 항목명 검색"><select id="documentProjectFilter"><option value="">전체 프로젝트</option></select></div>
+<div id="documentList" class="document-grid"></div>
+</section>
+<section id="settingsPage" class="hidden">
+<div class="page-head"><div><h1>설정</h1><div class="muted">현재 사용자와 화면 표시 방식을 확인합니다.</div></div></div>
+<div class="settings-grid">
+<div class="settings-card"><h3>사용자 정보</h3><div class="toggle-row"><span>이름</span><strong id="settingUserName">-</strong></div><div class="toggle-row"><span>이메일</span><strong id="settingUserEmail">-</strong></div><div class="toggle-row"><span>권한</span><strong id="settingUserRole">-</strong></div></div>
+<div class="settings-card"><h3>화면 설정</h3><div class="toggle-row"><div><strong>프로젝트 헤더 고정</strong><div class="small">상세 화면의 제목과 수정 버튼을 고정합니다.</div></div><input id="stickyHeaderSetting" type="checkbox" checked></div><div class="toggle-row"><div><strong>상세 패널 고정</strong><div class="small">체크리스트를 내려도 상세 입력창을 유지합니다.</div></div><input id="stickyPanelSetting" type="checkbox" checked></div><div style="text-align:right;margin-top:14px"><button id="saveViewSettingsBtn" class="primary">화면 설정 저장</button></div></div>
+</div>
 </section>
 </main></div></div>
 
@@ -151,18 +163,18 @@ function renderFilters(){const v=$("#countryFilter").value,c=[...new Set(project
 function renderProjects(){const q=$("#searchInput").value.toLowerCase(),t=$("#typeFilter").value,s=$("#statusFilter").value,c=$("#countryFilter").value,d=$("#delayFilter").value;const rows=projects.filter(p=>(`${p.projectName||""} ${p.name||""}`).toLowerCase().includes(q)&&(!t||(p.templateType||"newCarrier")===t)&&(!s||p.projectStatus===s)&&(!c||p.destination===c)&&(!d||overdue(p)));$("#projectRows").innerHTML=rows.length?rows.map(p=>{const pc=p.totalItems?Math.round((p.completedItems||0)/p.totalItems*100):0;return `<tr class="clickable" data-pid="${p.id}"><td><strong>${esc(p.projectName||p.serviceName||p.name)}</strong></td><td>${esc(p.name||"-")}</td><td><span class="badge b-blue">${esc(TYPE_LABELS[p.templateType||"newCarrier"])}</span></td><td>${esc(p.origin||"-")} → ${esc(p.destination||"-")}</td><td><div style="display:grid;grid-template-columns:1fr 40px;gap:8px;align-items:center"><div class="progress"><div style="width:${pc}%"></div></div><span>${pc}%</span></div></td><td><span class="badge ${p.projectStatus==="완료"?"b-green":"b-gray"}">${esc(p.projectStatus||"정보 수집")}</span></td><td>${overdue(p)?'<span class="badge b-orange">지연</span>':'-'}</td><td>${fmt(p.updatedAt)}</td></tr>`}).join(""):'<tr><td colspan="8" style="text-align:center;color:#697386;padding:35px">프로젝트가 없습니다.</td></tr>';$$("[data-pid]").forEach(r=>r.onclick=()=>openProject(r.dataset.pid))}
 ["searchInput","typeFilter","statusFilter","countryFilter","delayFilter"].forEach(id=>$("#"+id).addEventListener(id==="searchInput"?"input":"change",renderProjects));
 
-function showProjects(){$("#projectPage").classList.remove("hidden");$("#detailPage").classList.add("hidden");$("#templatePage").classList.add("hidden")}
+function hideAllPages(){["projectPage","detailPage","templatePage","documentsPage","settingsPage"].forEach(id=>$("#"+id).classList.add("hidden"));$$(".nav-item").forEach(e=>e.classList.remove("active"))}function showProjects(){hideAllPages();$("#projectPage").classList.remove("hidden");$("#navProjects").classList.add("active")}function showDocuments(){hideAllPages();$("#documentsPage").classList.remove("hidden");$("#navDocuments").classList.add("active");loadDocuments()}function showSettings(){hideAllPages();$("#settingsPage").classList.remove("hidden");$("#navSettings").classList.add("active");renderSettings()}
 $("#backBtn").onclick=showProjects;$("#backProjectBtn").onclick=showProjects;$("#navProjects").onclick=showProjects;
-$("#navTemplates").onclick=()=>{$("#projectPage").classList.add("hidden");$("#detailPage").classList.add("hidden");$("#templatePage").classList.remove("hidden");renderTemplateManager()};
+$("#navTemplates").onclick=()=>{hideAllPages();$("#templatePage").classList.remove("hidden");$("#navTemplates").classList.add("active");renderTemplateManager()};$("#navDocuments").onclick=showDocuments;$("#navSettings").onclick=showSettings;
 
 function openProject(id){
- $("#projectPage").classList.add("hidden");$("#detailPage").classList.remove("hidden");$("#templatePage").classList.add("hidden");
+ hideAllPages();$("#detailPage").classList.remove("hidden");$("#navProjects").classList.add("active");
  if(unsubProject)unsubProject();if(unsubItems)unsubItems();
  unsubProject=onSnapshot(doc(db,"carriers",id),s=>{if(!s.exists())return;currentProject={id:s.id,...s.data()};$("#detailTitle").textContent=currentProject.projectName||currentProject.name;$("#detailSub").textContent=`${currentProject.name||"-"} · ${TYPE_LABELS[currentProject.templateType||"newCarrier"]} · ${currentProject.origin||"-"} → ${currentProject.destination||"-"}`;renderScopes()});
  unsubItems=onSnapshot(query(collection(db,"carriers",id,"checklistItems"),orderBy("order")),s=>{currentItems=s.docs.map(d=>({id:d.id,...d.data()}));renderChecklist();if(selectedItemId){const i=currentItems.find(x=>x.id===selectedItemId);if(i)renderItemDetail(i)}})
 }
 function renderScopes(){const arr=currentProject.scopeKeys?.length?currentProject.scopeKeys:[...new Set(currentItems.map(i=>i.scopeKey).filter(Boolean))];$("#scopeChips").innerHTML=arr.length?arr.map(k=>`<span class="chip">${esc(MODULES[k]?.label||k)}</span>`).join(""):'<span class="small">선택된 범위가 없습니다.</span>'}
-function renderChecklist(){const groups={};currentItems.forEach(i=>(groups[i.scopeKey||i.category||"basic"]??=[]).push(i));const doneCnt=currentItems.filter(done).length,pc=currentItems.length?Math.round(doneCnt/currentItems.length*100):0;$("#progressText").textContent=`전체 진행률 ${pc}% · ${doneCnt}/${currentItems.length}`;$("#checklistArea").innerHTML=Object.entries(groups).map(([k,arr])=>`<section class="category"><div class="cat-head"><div><span class="cat-title">${esc(MODULES[k]?.label||arr[0]?.category||k)}</span> <span class="small">(${arr.length}개)</span></div><button class="ghost" data-add-scope="${k}">+ 항목 추가</button></div>${arr.sort((a,b)=>(a.order||0)-(b.order||0)).map((i,idx)=>`<div class="item-row ${selectedItemId===i.id?"selected":""}" data-item="${i.id}"><div><input type="checkbox" data-check="${i.id}" ${done(i)?"checked":""}></div><div class="item-title clickable" data-open="${i.id}">${esc(i.title)}${i.lastEditedAt?`<div class="item-audit">수정 ${esc(i.updatedByName||i.updatedBy||"-")} · ${fmt(i.lastEditedAt)}</div>`:""}</div><div><span class="badge ${i.status==="완료"?"b-green":i.status==="확인 중"?"b-orange":"b-gray"}">${esc(i.status||"미확인")}</span></div><button class="icon-btn" data-up="${i.id}">↑</button><button class="icon-btn" data-down="${i.id}">↓</button><button class="danger" data-del="${i.id}">삭제</button></div>`).join("")}<div class="add-row" data-add-scope="${k}">+ 새 항목 추가</div></section>`).join("");$$("[data-open]").forEach(e=>e.onclick=()=>{selectedItemId=e.dataset.open;renderItemDetail(currentItems.find(x=>x.id===selectedItemId));renderChecklist()});$$("[data-check]").forEach(e=>e.onchange=()=>quickCheck(e.dataset.check,e.checked));$$("[data-add-scope]").forEach(e=>e.onclick=()=>addItem(e.dataset.addScope));$$("[data-del]").forEach(e=>e.onclick=()=>deleteItem(e.dataset.del));$$("[data-up]").forEach(e=>e.onclick=()=>moveItem(e.dataset.up,-1));$$("[data-down]").forEach(e=>e.onclick=()=>moveItem(e.dataset.down,1))}
+function renderChecklist(){const groups={};currentItems.forEach(i=>(groups[i.scopeKey||i.category||"basic"]??=[]).push(i));const doneCnt=currentItems.filter(done).length,pc=currentItems.length?Math.round(doneCnt/currentItems.length*100):0;$("#progressText").textContent=`전체 진행률 ${pc}% · ${doneCnt}/${currentItems.length}`;$("#checklistArea").innerHTML=Object.entries(groups).map(([k,arr])=>`<section class="category"><div class="cat-head"><div><span class="cat-title">${esc(MODULES[k]?.label||arr[0]?.category||k)}</span> <span class="small">(${arr.length}개)</span></div><button class="ghost" data-add-scope="${k}">+ 항목 추가</button></div>${arr.sort((a,b)=>(a.order||0)-(b.order||0)).map((i,idx)=>`<div class="item-row ${selectedItemId===i.id?"selected":""}" data-item="${i.id}"><div><input type="checkbox" data-check="${i.id}" ${done(i)?"checked":""}></div><div class="item-title clickable" data-open="${i.id}">${esc(i.title)}${i.lastEditedAt?`<div class="item-audit">수정 ${esc(i.updatedByName||i.updatedBy||"-")} · ${fmt(i.lastEditedAt)}</div>`:""}</div><div><span class="badge ${i.status==="완료"?"b-green":i.status==="확인 중"?"b-orange":"b-gray"}">${esc(i.status||"미확인")}</span></div><button class="icon-btn" data-up="${i.id}">↑</button><button class="icon-btn" data-down="${i.id}">↓</button><button class="danger" data-del="${i.id}">삭제</button></div>`).join("")}<div class="add-row" data-add-scope="${k}">+ 새 항목 추가</div></section>`).join("");$$("[data-open]").forEach(e=>e.onclick=()=>{selectedItemId=e.dataset.open;renderItemDetail(currentItems.find(x=>x.id===selectedItemId));renderChecklist();const panel=document.querySelector(".sticky-detail-panel");if(panel&&window.innerWidth<1100)panel.scrollIntoView({behavior:"smooth",block:"start"})});$$("[data-check]").forEach(e=>e.onchange=()=>quickCheck(e.dataset.check,e.checked));$$("[data-add-scope]").forEach(e=>e.onclick=()=>addItem(e.dataset.addScope));$$("[data-del]").forEach(e=>e.onclick=()=>deleteItem(e.dataset.del));$$("[data-up]").forEach(e=>e.onclick=()=>moveItem(e.dataset.up,-1));$$("[data-down]").forEach(e=>e.onclick=()=>moveItem(e.dataset.down,1))}
 async function quickCheck(id,val){const item=currentItems.find(x=>x.id===id);await updateDoc(doc(db,"carriers",currentProject.id,"checklistItems",id),{completed:val,status:val?"완료":"미확인",lastEditedAt:serverTimestamp(),updatedBy:me.email,updatedByName:me.profile.name||me.email});await syncProgress();saveState("저장 완료")}
 function renderItemDetail(i){if(!i){$("#itemDetail").innerHTML='<div class="detail-empty">항목을 선택하세요.</div>';return}$("#itemDetail").className="panel-body";$("#itemDetail").innerHTML=`<div class="detail-form"><div class="chips"><span class="chip">${esc(MODULES[i.scopeKey]?.label||i.category||"-")}</span>${i.required!==false?'<span class="badge b-orange">필수</span>':'<span class="badge b-gray">선택</span>'}</div><label>항목명</label><input id="dTitle" value="${esc(i.title)}"><label>상태</label><select id="dStatus"><option ${i.status==="미확인"?"selected":""}>미확인</option><option ${i.status==="확인 중"?"selected":""}>확인 중</option><option ${i.status==="완료"?"selected":""}>완료</option><option ${i.status==="해당 없음"?"selected":""}>해당 없음</option></select><label>확인 내용</label><textarea id="dCheckContent" placeholder="운영에서 확인해야 할 기준과 내용을 입력하세요.">${esc(i.checkContent||"")}</textarea><label>배송사·개발팀 답변</label><textarea id="dAnswer">${esc(i.carrierAnswer||"")}</textarea><label>운영 반영 내용</label><textarea id="dOperation">${esc(i.internalNote||"")}</textarea><label>근거 자료 링크</label><input id="dEvidence" value="${esc(i.evidenceUrl||"")}" placeholder="OneDrive, 문서 링크 등"><label>비고</label><textarea id="dNote">${esc(i.note||"")}</textarea><div class="info-grid"><div class="info-box"><span class="small">확인일</span><input type="date" id="dDate" value="${esc(i.confirmedDate||"")}" style="width:100%;margin-top:5px"></div><div class="info-box"><span class="small">최종 수정</span><div style="margin-top:8px">${i.lastEditedAt?`${esc(i.updatedByName||i.updatedBy||"-")}<br><span class="small">${fmt(i.lastEditedAt)}</span>`:"수정 이력 없음"}</div></div></div><div class="detail-actions"><button id="cancelItemBtn" class="ghost">취소</button><button id="saveItemBtn" class="primary">저장</button></div></div>`;$("#saveItemBtn").onclick=()=>saveItemDetail(i.id);$("#cancelItemBtn").onclick=()=>renderItemDetail(i)}
 async function saveItemDetail(id){const status=$("#dStatus").value;await updateDoc(doc(db,"carriers",currentProject.id,"checklistItems",id),{title:$("#dTitle").value.trim(),status,completed:status==="완료"||status==="해당 없음",checkContent:$("#dCheckContent").value,carrierAnswer:$("#dAnswer").value,internalNote:$("#dOperation").value,evidenceUrl:$("#dEvidence").value,note:$("#dNote").value,confirmedDate:$("#dDate").value,lastEditedAt:serverTimestamp(),updatedBy:me.email,updatedByName:me.profile.name||me.email});await syncProgress();saveState("저장 완료")}
@@ -273,6 +285,36 @@ $("#saveProjectInfoBtn").onclick=async()=>{
 
 $("#deleteProjectBtn").onclick=async()=>{if(prompt(`삭제하려면 프로젝트명 "${currentProject.projectName}"을 입력하세요.`)!==currentProject.projectName)return;const s=await getDocs(collection(db,"carriers",currentProject.id,"checklistItems"));let b=writeBatch(db);s.docs.forEach(d=>b.delete(d.ref));await b.commit();await deleteDoc(doc(db,"carriers",currentProject.id));showProjects()};
 
+
+let documentRows=[];
+async function loadDocuments(){
+ $("#documentList").innerHTML='<div class="small">자료를 불러오는 중입니다...</div>';
+ const rows=[];
+ for(const project of projects){
+   try{
+     const snap=await getDocs(collection(db,"carriers",project.id,"checklistItems"));
+     snap.docs.forEach(d=>{const item=d.data();if((item.evidenceUrl||"").trim())rows.push({projectName:project.projectName||project.serviceName||project.name,carrier:project.name||"-",destination:project.destination||"-",scope:MODULES[item.scopeKey]?.label||item.category||"-",title:item.title||"-",url:item.evidenceUrl.trim(),updatedAt:item.lastEditedAt||project.updatedAt})});
+   }catch(error){console.warn(error)}
+ }
+ documentRows=rows;
+ const names=[...new Set(rows.map(r=>r.projectName))].sort();
+ $("#documentProjectFilter").innerHTML='<option value="">전체 프로젝트</option>'+names.map(x=>`<option>${esc(x)}</option>`).join("");
+ renderDocuments();
+}
+function renderDocuments(){
+ const q=$("#documentSearch").value.trim().toLowerCase(),project=$("#documentProjectFilter").value;
+ const list=documentRows.filter(r=>(!project||r.projectName===project)&&(`${r.projectName} ${r.carrier} ${r.title} ${r.scope}`.toLowerCase().includes(q)));
+ $("#documentList").innerHTML=list.length?list.map(r=>`<article class="document-card"><span class="badge b-blue">${esc(r.scope)}</span><h3 style="margin-top:10px">${esc(r.title)}</h3><div class="small">${esc(r.projectName)}</div><div class="small">${esc(r.carrier)} · ${esc(r.destination)}</div><div class="small" style="margin-top:6px">최근 수정 ${fmt(r.updatedAt)}</div><a class="document-link" href="${esc(r.url)}" target="_blank" rel="noopener">자료 열기 →</a></article>`).join(""):'<div class="panel detail-empty" style="grid-column:1/-1">등록된 근거 자료 링크가 없습니다.</div>';
+}
+$("#refreshDocumentsBtn").onclick=loadDocuments;$("#documentSearch").oninput=renderDocuments;$("#documentProjectFilter").onchange=renderDocuments;
+function renderSettings(){
+ $("#settingUserName").textContent=me?.profile?.name||me?.displayName||"-";
+ $("#settingUserEmail").textContent=me?.email||"-";
+ $("#settingUserRole").textContent=me?.profile?.role||"member";
+ $("#stickyHeaderSetting").checked=localStorage.getItem("carrier-sticky-header")!=="false";
+ $("#stickyPanelSetting").checked=localStorage.getItem("carrier-sticky-panel")!=="false";
+}
+$("#saveViewSettingsBtn").onclick=()=>{localStorage.setItem("carrier-sticky-header",$("#stickyHeaderSetting").checked);localStorage.setItem("carrier-sticky-panel",$("#stickyPanelSetting").checked);location.reload()};
 function renderTemplateManager(){$("#templateManager").innerHTML=Object.entries(MODULES).map(([k,m])=>`<section class="category"><div class="cat-head"><div><strong>${esc(m.label)}</strong><div class="small">${esc(m.desc)}</div></div></div>${m.items.map((x,i)=>`<div class="item-row" style="grid-template-columns:1fr 80px"><input data-template-item="${k}|${i}" value="${esc(x)}"><button class="danger" data-template-del="${k}|${i}">삭제</button></div>`).join("")}<div class="add-row" data-template-add="${k}">+ 항목 추가</div></section>`).join("");$$("[data-template-item]").forEach(e=>e.onchange=()=>{const[k,i]=e.dataset.templateItem.split("|");MODULES[k].items[+i]=e.value;saveState("브라우저 템플릿 수정됨")});$$("[data-template-del]").forEach(e=>e.onclick=()=>{const[k,i]=e.dataset.templateDel.split("|");MODULES[k].items.splice(+i,1);renderTemplateManager()});$$("[data-template-add]").forEach(e=>e.onclick=()=>{const t=prompt("새 기본 항목명을 입력하세요.");if(t){MODULES[e.dataset.templateAdd].items.push(t);renderTemplateManager()}})}
 </script>
 </body></html>
