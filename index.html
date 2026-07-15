@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>OPS Carrier Setup</title>
+<title>Carrier Setup V5</title>
 <style>
 :root{
   --bg:#f5f7fb;--card:#fff;--line:#dfe5ee;--text:#172033;--muted:#697386;
@@ -45,7 +45,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid label{font-size:12px;color:var(--muted)}.form-grid input,.form-grid select,.form-grid textarea{width:100%;margin-top:5px}
 .scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.scope-card{border:1px solid var(--line);border-radius:11px;padding:13px;cursor:pointer;min-height:105px}.scope-card.selected{border-color:var(--primary);background:var(--primary-soft)}.scope-card strong{display:block;margin-bottom:6px}.scope-card input{margin-right:6px}
 .preview-category{border:1px solid var(--line);border-radius:10px;margin-bottom:10px}.preview-head{padding:10px 12px;background:#fafbfe;font-weight:800}.preview-item{display:grid;grid-template-columns:1fr 80px 45px;gap:8px;align-items:center;padding:7px 10px;border-top:1px solid #edf0f4}
-.save-state{font-size:12px;color:var(--muted)}.save-state.ok{color:var(--green)}.save-state.fail{color:var(--red)}
+.save-state{font-size:12px;color:var(--muted)}.save-state.ok{color:var(--green)}.save-state.fail{color:var(--red)}.template-scope-head{display:grid;grid-template-columns:220px 1fr auto;gap:8px;align-items:center;width:100%}.template-scope-head input{width:100%}.template-admin-note{background:#fff6e8;border:1px solid #ffd89b;color:#8f5100;border-radius:10px;padding:11px;margin-bottom:12px}.template-row-v6{display:grid;grid-template-columns:1fr 90px 72px 72px auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid #edf0f4}.template-row-v6 input,.template-row-v6 select{width:100%}
 .document-grid{display:grid;grid-template-columns:repeat(3,minmax(240px,1fr));gap:12px}.document-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.document-card h3{margin:0 0 7px;font-size:15px}.document-link{display:inline-block;margin-top:9px;color:var(--primary);font-weight:800;text-decoration:none}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.settings-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px}.settings-card h3{margin-top:0}.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #edf0f4}@media(max-width:1100px){.detail-layout{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.summary{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.sidebar{display:none}.scope-grid{grid-template-columns:1fr 1fr}.detail-side-column{position:static;max-height:none}.detail-sticky-head{top:66px}.document-grid{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -84,7 +84,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 </section>
 
 <section id="templatePage" class="hidden">
-<div class="page-head"><div><h1>템플릿 관리</h1><div class="muted">확인 범위별 기본 항목을 수정합니다.</div></div><button id="backProjectBtn" class="ghost">프로젝트 목록</button></div>
+<div class="page-head"><div><h1>템플릿 관리</h1><div class="muted">확인 범위별 공용 기본 항목을 관리합니다. 수정 내용은 Firestore에 자동 저장됩니다.</div></div><div class="row"><span id="templateSaveState" class="save-state"></span><button id="addTemplateScopeBtn" class="primary">+ 기타 그룹 추가</button><button id="backProjectBtn" class="ghost">프로젝트 목록</button></div></div>
 <div class="panel"><div class="panel-body"><div id="templateManager"></div></div></div>
 </section>
 <section id="documentsPage" class="hidden">
@@ -134,10 +134,11 @@ import {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} f
 import {getFirestore,doc,getDoc,getDocs,collection,addDoc,deleteDoc,updateDoc,setDoc,writeBatch,serverTimestamp,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 const firebaseConfig={apiKey:"AIzaSyCSua6rhbsibC3liQdZPL-twVA943jvDsE",authDomain:"carrier-setup.firebaseapp.com",projectId:"carrier-setup",storageBucket:"carrier-setup.firebasestorage.app",messagingSenderId:"746426408870",appId:"1:746426408870:web:19259d781a87b826ecf967"};
-const MODULES={"basic": {"label": "기본정보", "desc": "서비스, 일정, 담당 창구, 기본 운영 조건", "items": ["서비스명 및 상품명 확인", "출발국 / 도착국 확인", "서비스 코드 확인", "서비스 오픈 또는 배포 예정일 확인", "운영 담당 창구 및 비상 연락처 확인"]}, "operation": {"label": "운영 정책", "desc": "배송 조건, 제한 품목, 배송 가능 여부", "items": ["발송 가능 품목 확인", "배송 제한 품목 확인", "배송 불가 품목 확인", "취급 제한 및 보상 제외 품목 확인", "긴급·우선 배송 가능 여부 확인"]}, "customs": {"label": "통관/관세", "desc": "HS 코드, 면세 한도, 관세 및 통관 기준", "items": ["면세 한도 확인", "관세·부가세 납부 주체 확인", "필수 통관정보 확인", "수취인 Tax ID / 개인통관정보 확인", "통관 보류 및 실패 처리 기준 확인", "통관 상태코드 매핑 확인"]}, "lmd": {"label": "LMD 정책", "desc": "배송 시도, 재배송, 반송, 불가지역", "items": ["배송 시도 횟수 확인", "재배달 가능 여부 및 조건 확인", "반송 처리 정책 확인", "반송 화물 보관 기간 확인", "폐기 가능 여부 및 비용 확인", "재배송 가능 여부 및 비용 확인", "배송 불가 지역 확인", "POD 및 서명 배송 여부 확인", "LMD 상태코드 매핑 확인"]}, "api": {"label": "API 개발", "desc": "API 명세, 인증, 상태코드, 웹훅", "items": ["API 명세 수령 및 검토", "인증 방식 확인", "엔드포인트 목록 확인", "요청·응답 데이터 구조 확인", "오류코드 및 예외처리 확인", "상태코드 및 이벤트 매핑 확인", "Webhook 제공 여부 확인", "API 테스트 계정 수령", "API 연동 테스트 완료"]}, "label": {"label": "송장/라벨", "desc": "송장 발번, 양식, 규격, 출력 조건", "items": ["송장 사전발번 여부 확인", "송장 양식 및 샘플 확인", "운송장 사이즈 확인", "출력 DPI 및 규격 확인", "송장 취소·재발행 기준 확인", "송장 수신 API 확인", "송장 유효기간 확인"]}, "cost": {"label": "원가/정산", "desc": "통관비, 배송비, 부대비용, 정산", "items": ["배송비 확인", "통관비 확인", "유류할증료 확인", "Remote Area 비용 확인", "재배송·반송·폐기 비용 확인", "과금 중량 및 부피무게 기준 확인", "판매가 반영 확인", "원가 마스터 반영 확인", "정산 주기 및 데이터 형식 확인"]}, "notice": {"label": "고객 공지", "desc": "공지, FAQ, 내부 전달 및 교육", "items": ["고객 공지 필요 여부 확인", "공지 초안 작성", "공지 내용 검토 및 승인", "공지 게시", "내부 운영 공지", "상담팀 전달", "FAQ 및 매뉴얼 수정"]}, "test": {"label": "테스트 및 운영 배포", "desc": "테스트 계획, 운영 배포, 모니터링", "items": ["테스트 계획 수립", "테스트 시나리오 확인", "테스트 발송 및 결과 확인", "운영 배포 일정 확정", "운영 배포 승인", "운영 배포 완료", "배포 후 모니터링 계획", "초기 주문 모니터링", "안정화 완료 확인"]}, "etc": {"label": "기타", "desc": "프로젝트별 추가 확인이 필요한 예외·특이사항", "items": ["추가 확인 필요사항 정리", "예외 처리 기준 확인", "관련 부서 협의사항 확인", "미결 이슈 및 후속 조치 확인"]}};
+const FALLBACK_MODULES={"basic": {"label": "기본정보", "desc": "서비스, 일정, 담당 창구, 기본 운영 조건", "items": ["서비스명 및 상품명 확인", "출발국 / 도착국 확인", "서비스 코드 확인", "서비스 오픈 또는 배포 예정일 확인", "운영 담당 창구 및 비상 연락처 확인"]}, "operation": {"label": "운영 정책", "desc": "배송 조건, 제한 품목, 배송 가능 여부", "items": ["발송 가능 품목 확인", "배송 제한 품목 확인", "배송 불가 품목 확인", "취급 제한 및 보상 제외 품목 확인", "긴급·우선 배송 가능 여부 확인"]}, "customs": {"label": "통관/관세", "desc": "HS 코드, 면세 한도, 관세 및 통관 기준", "items": ["면세 한도 확인", "관세·부가세 납부 주체 확인", "필수 통관정보 확인", "수취인 Tax ID / 개인통관정보 확인", "통관 보류 및 실패 처리 기준 확인", "통관 상태코드 매핑 확인"]}, "lmd": {"label": "LMD 정책", "desc": "배송 시도, 재배송, 반송, 불가지역", "items": ["배송 시도 횟수 확인", "재배달 가능 여부 및 조건 확인", "반송 처리 정책 확인", "반송 화물 보관 기간 확인", "폐기 가능 여부 및 비용 확인", "재배송 가능 여부 및 비용 확인", "배송 불가 지역 확인", "POD 및 서명 배송 여부 확인", "LMD 상태코드 매핑 확인"]}, "api": {"label": "API 개발", "desc": "API 명세, 인증, 상태코드, 웹훅", "items": ["API 명세 수령 및 검토", "인증 방식 확인", "엔드포인트 목록 확인", "요청·응답 데이터 구조 확인", "오류코드 및 예외처리 확인", "상태코드 및 이벤트 매핑 확인", "Webhook 제공 여부 확인", "API 테스트 계정 수령", "API 연동 테스트 완료"]}, "label": {"label": "송장/라벨", "desc": "송장 발번, 양식, 규격, 출력 조건", "items": ["송장 사전발번 여부 확인", "송장 양식 및 샘플 확인", "운송장 사이즈 확인", "출력 DPI 및 규격 확인", "송장 취소·재발행 기준 확인", "송장 수신 API 확인", "송장 유효기간 확인"]}, "cost": {"label": "원가/정산", "desc": "통관비, 배송비, 부대비용, 정산", "items": ["배송비 확인", "통관비 확인", "유류할증료 확인", "Remote Area 비용 확인", "재배송·반송·폐기 비용 확인", "과금 중량 및 부피무게 기준 확인", "판매가 반영 확인", "원가 마스터 반영 확인", "정산 주기 및 데이터 형식 확인"]}, "notice": {"label": "고객 공지", "desc": "공지, FAQ, 내부 전달 및 교육", "items": ["고객 공지 필요 여부 확인", "공지 초안 작성", "공지 내용 검토 및 승인", "공지 게시", "내부 운영 공지", "상담팀 전달", "FAQ 및 매뉴얼 수정"]}, "test": {"label": "테스트 및 운영 배포", "desc": "테스트 계획, 운영 배포, 모니터링", "items": ["테스트 계획 수립", "테스트 시나리오 확인", "테스트 발송 및 결과 확인", "운영 배포 일정 확정", "운영 배포 승인", "운영 배포 완료", "배포 후 모니터링 계획", "초기 주문 모니터링", "안정화 완료 확인"]}, "etc": {"label": "기타", "desc": "프로젝트별 추가 확인이 필요한 예외·특이사항", "items": ["추가 확인 필요사항 정리", "예외 처리 기준 확인", "관련 부서 협의사항 확인", "미결 이슈 및 후속 조치 확인"]}};
+let MODULES=structuredClone(FALLBACK_MODULES);
 const TYPE_LABELS={newCarrier:"신규 배송사 셋업",development:"기존 배송사 추가 개발",policyChange:"도착국 정책 변경 및 운영 배포"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),provider=new GoogleAuthProvider();
-let me=null,projects=[],currentProject=null,currentItems=[],selectedItemId=null,unsubProjects=null,unsubProject=null,unsubItems=null;
+let me=null,projects=[],currentProject=null,currentItems=[],selectedItemId=null,unsubProjects=null,unsubProject=null,unsubItems=null,unsubTemplateScopes=null,templateScopeUnsubs=[];
 let createStep=1,createScopes=new Set(["basic","operation","customs","lmd","api","cost","test"]),createItems=[];
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -154,8 +155,132 @@ onAuthStateChanged(auth,async user=>{
  const email=(user.email||"").toLowerCase(),a=await getDoc(doc(db,"allowedUsers",email));
  if(!a.exists()||a.data().active!==true){$("#loginMsg").textContent="허용되지 않은 계정입니다.";await signOut(auth);return}
  me={...user,profile:a.data()};$("#userPhoto").src=user.photoURL||"";$("#userName").textContent=a.data().name||user.displayName||email;
- $("#loginView").classList.add("hidden");$("#appView").classList.remove("hidden");subscribeProjects();renderScopeCards()
+ $("#loginView").classList.add("hidden");$("#appView").classList.remove("hidden");await ensureSharedTemplates();subscribeSharedTemplates();subscribeProjects()
 });
+
+
+function templateSaving(text="저장 중..."){
+ const e=$("#templateSaveState");if(!e)return;e.textContent=text;e.className="save-state";
+}
+function templateSaved(text="자동 저장됨"){
+ const e=$("#templateSaveState");if(!e)return;e.textContent=text;e.className="save-state ok";
+ clearTimeout(window.__templateSavedTimer);
+ window.__templateSavedTimer=setTimeout(()=>{if(e)e.textContent=""},1800);
+}
+function templateFailed(error){
+ console.error(error);
+ const e=$("#templateSaveState");if(e){e.textContent="저장 실패";e.className="save-state fail"}
+ alert("템플릿 저장에 실패했습니다: "+(error.message||error));
+}
+function isAdmin(){
+ return String(me?.profile?.role||"").toLowerCase()==="admin";
+}
+
+async function ensureSharedTemplates(){
+ try{
+   const scopeSnap=await getDocs(query(collection(db,"scopeTemplates"),orderBy("order")));
+   if(!scopeSnap.empty)return;
+   if(!isAdmin())return;
+
+   let batch=writeBatch(db),count=0,scopeOrder=0;
+   for(const [scopeKey,scope] of Object.entries(FALLBACK_MODULES)){
+     const scopeRef=doc(db,"scopeTemplates",scopeKey);
+     batch.set(scopeRef,{
+       label:scope.label,
+       desc:scope.desc,
+       order:scopeOrder++,
+       active:true,
+       createdAt:serverTimestamp(),
+       updatedAt:serverTimestamp(),
+       updatedBy:me.email
+     });
+     count++;
+
+     scope.items.forEach((title,itemOrder)=>{
+       const itemRef=doc(collection(db,"scopeTemplates",scopeKey,"items"));
+       batch.set(itemRef,{
+         title,
+         order:itemOrder,
+         required:true,
+         active:true,
+         createdAt:serverTimestamp(),
+         updatedAt:serverTimestamp(),
+         updatedBy:me.email
+       });
+       count++;
+     });
+   }
+   await batch.commit();
+ }catch(error){
+   console.warn("공용 템플릿 초기화 실패, 기본 템플릿으로 계속 진행:",error);
+ }
+}
+
+function clearTemplateSubscriptions(){
+ if(unsubTemplateScopes)unsubTemplateScopes();
+ templateScopeUnsubs.forEach(fn=>fn&&fn());
+ templateScopeUnsubs=[];
+}
+
+function subscribeSharedTemplates(){
+ clearTemplateSubscriptions();
+
+ unsubTemplateScopes=onSnapshot(
+   query(collection(db,"scopeTemplates"),orderBy("order")),
+   scopeSnap=>{
+     templateScopeUnsubs.forEach(fn=>fn&&fn());
+     templateScopeUnsubs=[];
+
+     if(scopeSnap.empty){
+       MODULES=structuredClone(FALLBACK_MODULES);
+       renderScopeCards();
+       if(!$("#templatePage").classList.contains("hidden"))renderTemplateManager();
+       return;
+     }
+
+     const next={};
+     let pending=scopeSnap.size;
+
+     scopeSnap.docs.forEach(scopeDoc=>{
+       const data=scopeDoc.data();
+       next[scopeDoc.id]={
+         label:data.label||scopeDoc.id,
+         desc:data.desc||"",
+         order:Number(data.order||0),
+         active:data.active!==false,
+         items:[],
+         itemDocs:[]
+       };
+
+       const unsub=onSnapshot(
+         query(collection(db,"scopeTemplates",scopeDoc.id,"items"),orderBy("order")),
+         itemSnap=>{
+           next[scopeDoc.id].itemDocs=itemSnap.docs.map(d=>({id:d.id,...d.data()}));
+           next[scopeDoc.id].items=next[scopeDoc.id].itemDocs
+             .filter(x=>x.active!==false)
+             .map(x=>x.title);
+
+           MODULES=Object.fromEntries(
+             Object.entries(next)
+               .filter(([,v])=>v.active!==false)
+               .sort((a,b)=>(a[1].order||0)-(b[1].order||0))
+           );
+
+           renderScopeCards();
+           if(currentProject)renderScopes();
+           if(!$("#templatePage").classList.contains("hidden"))renderTemplateManager();
+         },
+         error=>console.warn("템플릿 항목 실시간 수신 실패:",error)
+       );
+       templateScopeUnsubs.push(unsub);
+     });
+   },
+   error=>{
+     console.warn("공용 템플릿 수신 실패:",error);
+     MODULES=structuredClone(FALLBACK_MODULES);
+   }
+ );
+}
 
 function subscribeProjects(){if(unsubProjects)unsubProjects();unsubProjects=onSnapshot(query(collection(db,"carriers"),orderBy("createdAt","desc")),s=>{projects=s.docs.map(d=>({id:d.id,...d.data()}));renderSummary();renderFilters();renderProjects()})}
 function renderSummary(){const total=projects.length,doing=projects.filter(p=>p.projectStatus!=="완료").length,doneCnt=projects.filter(p=>p.projectStatus==="완료").length,late=projects.filter(overdue).length;$("#summary").innerHTML=[["전체 프로젝트",total],["진행 중",doing],["완료",doneCnt],["지연",late]].map(([a,b])=>`<div class="summary-card"><span class="small">${a}</span><strong>${b}</strong></div>`).join("")}
@@ -327,6 +452,229 @@ function renderSettings(){
  $("#stickyPanelSetting").checked=localStorage.getItem("carrier-sticky-panel")!=="false";
 }
 $("#saveViewSettingsBtn").onclick=()=>{localStorage.setItem("carrier-sticky-header",$("#stickyHeaderSetting").checked);localStorage.setItem("carrier-sticky-panel",$("#stickyPanelSetting").checked);location.reload()};
-function renderTemplateManager(){$("#templateManager").innerHTML=Object.entries(MODULES).map(([k,m])=>`<section class="category"><div class="cat-head"><div><strong>${esc(m.label)}</strong><div class="small">${esc(m.desc)}</div></div></div>${m.items.map((x,i)=>`<div class="item-row" style="grid-template-columns:1fr 80px"><input data-template-item="${k}|${i}" value="${esc(x)}"><button class="danger" data-template-del="${k}|${i}">삭제</button></div>`).join("")}<div class="add-row" data-template-add="${k}">+ 항목 추가</div></section>`).join("");$$("[data-template-item]").forEach(e=>e.onchange=()=>{const[k,i]=e.dataset.templateItem.split("|");MODULES[k].items[+i]=e.value;saveState("브라우저 템플릿 수정됨")});$$("[data-template-del]").forEach(e=>e.onclick=()=>{const[k,i]=e.dataset.templateDel.split("|");MODULES[k].items.splice(+i,1);renderTemplateManager()});$$("[data-template-add]").forEach(e=>e.onclick=()=>{const t=prompt("새 기본 항목명을 입력하세요.");if(t){MODULES[e.dataset.templateAdd].items.push(t);renderTemplateManager()}})}
+function renderTemplateManager(){
+ const editable=isAdmin();
+ const scopes=Object.entries(MODULES).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+
+ $("#addTemplateScopeBtn").classList.toggle("hidden",!editable);
+
+ $("#templateManager").innerHTML=
+   (!editable?'<div class="template-admin-note">템플릿은 관리자만 수정할 수 있습니다. 현재 계정은 조회만 가능합니다.</div>':'')+
+   scopes.map(([scopeKey,scope],scopeIndex)=>`
+     <section class="category" data-template-scope="${scopeKey}">
+       <div class="cat-head">
+         <div class="template-scope-head">
+           <input data-scope-label="${scopeKey}" value="${esc(scope.label)}" ${editable?"":"disabled"}>
+           <input data-scope-desc="${scopeKey}" value="${esc(scope.desc||"")}" placeholder="그룹 설명" ${editable?"":"disabled"}>
+           <div class="row">
+             <button class="icon-btn" data-scope-up="${scopeKey}" ${editable?"":"disabled"}>↑</button>
+             <button class="icon-btn" data-scope-down="${scopeKey}" ${editable?"":"disabled"}>↓</button>
+             <button class="danger" data-scope-delete="${scopeKey}" ${editable?"":"disabled"}>그룹 삭제</button>
+           </div>
+         </div>
+       </div>
+       ${(scope.itemDocs||[]).filter(x=>x.active!==false).map((item,itemIndex)=>`
+         <div class="template-row-v6" data-template-item-id="${item.id}">
+           <input data-template-title="${scopeKey}|${item.id}" value="${esc(item.title)}" ${editable?"":"disabled"}>
+           <select data-template-required="${scopeKey}|${item.id}" ${editable?"":"disabled"}>
+             <option value="true" ${item.required!==false?"selected":""}>필수</option>
+             <option value="false" ${item.required===false?"selected":""}>선택</option>
+           </select>
+           <button class="icon-btn" data-template-up="${scopeKey}|${item.id}" ${editable?"":"disabled"}>↑</button>
+           <button class="icon-btn" data-template-down="${scopeKey}|${item.id}" ${editable?"":"disabled"}>↓</button>
+           <button class="danger" data-template-delete="${scopeKey}|${item.id}" ${editable?"":"disabled"}>삭제</button>
+         </div>`).join("")}
+       <div class="add-row ${editable?"":"hidden"}" data-template-add="${scopeKey}">+ 기본 항목 추가</div>
+     </section>`).join("");
+
+ if(!editable)return;
+
+ $$("[data-scope-label]").forEach(el=>el.onchange=()=>saveScopeField(el.dataset.scopeLabel,"label",el.value.trim()));
+ $$("[data-scope-desc]").forEach(el=>el.onchange=()=>saveScopeField(el.dataset.scopeDesc,"desc",el.value.trim()));
+
+ $$("[data-template-title]").forEach(el=>el.onchange=()=>{
+   const [scopeKey,itemId]=el.dataset.templateTitle.split("|");
+   saveTemplateItemField(scopeKey,itemId,"title",el.value.trim());
+ });
+ $$("[data-template-required]").forEach(el=>el.onchange=()=>{
+   const [scopeKey,itemId]=el.dataset.templateRequired.split("|");
+   saveTemplateItemField(scopeKey,itemId,"required",el.value==="true");
+ });
+
+ $$("[data-template-add]").forEach(el=>el.onclick=()=>addSharedTemplateItem(el.dataset.templateAdd));
+ $$("[data-template-delete]").forEach(el=>el.onclick=()=>{
+   const [scopeKey,itemId]=el.dataset.templateDelete.split("|");
+   deleteSharedTemplateItem(scopeKey,itemId);
+ });
+ $$("[data-template-up]").forEach(el=>el.onclick=()=>{
+   const [scopeKey,itemId]=el.dataset.templateUp.split("|");
+   moveSharedTemplateItem(scopeKey,itemId,-1);
+ });
+ $$("[data-template-down]").forEach(el=>el.onclick=()=>{
+   const [scopeKey,itemId]=el.dataset.templateDown.split("|");
+   moveSharedTemplateItem(scopeKey,itemId,1);
+ });
+ $$("[data-scope-up]").forEach(el=>el.onclick=()=>moveSharedScope(el.dataset.scopeUp,-1));
+ $$("[data-scope-down]").forEach(el=>el.onclick=()=>moveSharedScope(el.dataset.scopeDown,1));
+ $$("[data-scope-delete]").forEach(el=>el.onclick=()=>deleteSharedScope(el.dataset.scopeDelete));
+}
+
+async function saveScopeField(scopeKey,field,value){
+ if(!isAdmin())return;
+ if(!value&&field==="label")return alert("그룹명은 비워둘 수 없습니다.");
+ templateSaving();
+ try{
+   await updateDoc(doc(db,"scopeTemplates",scopeKey),{
+     [field]:value,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   templateSaved();
+ }catch(error){templateFailed(error)}
+}
+
+async function saveTemplateItemField(scopeKey,itemId,field,value){
+ if(!isAdmin())return;
+ if(field==="title"&&!value)return alert("항목명은 비워둘 수 없습니다.");
+ templateSaving();
+ try{
+   await updateDoc(doc(db,"scopeTemplates",scopeKey,"items",itemId),{
+     [field]:value,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   templateSaved();
+ }catch(error){templateFailed(error)}
+}
+
+async function addSharedTemplateItem(scopeKey){
+ if(!isAdmin())return;
+ const title=prompt("새 기본 항목명을 입력하세요.");
+ if(!title?.trim())return;
+
+ const items=MODULES[scopeKey]?.itemDocs||[];
+ const nextOrder=items.length?Math.max(...items.map(x=>Number(x.order||0)))+1:0;
+
+ templateSaving();
+ try{
+   await addDoc(collection(db,"scopeTemplates",scopeKey,"items"),{
+     title:title.trim(),
+     order:nextOrder,
+     required:true,
+     active:true,
+     createdAt:serverTimestamp(),
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   templateSaved("항목 추가 완료");
+ }catch(error){templateFailed(error)}
+}
+
+async function deleteSharedTemplateItem(scopeKey,itemId){
+ if(!isAdmin())return;
+ const item=(MODULES[scopeKey]?.itemDocs||[]).find(x=>x.id===itemId);
+ if(!confirm(`"${item?.title||"이 항목"}"을 공용 템플릿에서 삭제할까요?\n기존 프로젝트의 항목은 삭제되지 않습니다.`))return;
+
+ templateSaving("삭제 중...");
+ try{
+   await deleteDoc(doc(db,"scopeTemplates",scopeKey,"items",itemId));
+   templateSaved("항목 삭제 완료");
+ }catch(error){templateFailed(error)}
+}
+
+async function moveSharedTemplateItem(scopeKey,itemId,direction){
+ if(!isAdmin())return;
+ const items=(MODULES[scopeKey]?.itemDocs||[])
+   .filter(x=>x.active!==false)
+   .sort((a,b)=>(a.order||0)-(b.order||0));
+ const index=items.findIndex(x=>x.id===itemId);
+ const target=items[index+direction];
+ if(index<0||!target)return;
+
+ templateSaving("순서 저장 중...");
+ try{
+   const batch=writeBatch(db);
+   batch.update(doc(db,"scopeTemplates",scopeKey,"items",itemId),{
+     order:target.order,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   batch.update(doc(db,"scopeTemplates",scopeKey,"items",target.id),{
+     order:items[index].order,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   await batch.commit();
+   templateSaved("순서 저장 완료");
+ }catch(error){templateFailed(error)}
+}
+
+async function moveSharedScope(scopeKey,direction){
+ if(!isAdmin())return;
+ const scopes=Object.entries(MODULES).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+ const index=scopes.findIndex(([key])=>key===scopeKey);
+ const target=scopes[index+direction];
+ if(index<0||!target)return;
+
+ templateSaving("그룹 순서 저장 중...");
+ try{
+   const batch=writeBatch(db);
+   batch.update(doc(db,"scopeTemplates",scopeKey),{
+     order:target[1].order,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   batch.update(doc(db,"scopeTemplates",target[0]),{
+     order:scopes[index][1].order,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   await batch.commit();
+   templateSaved("그룹 순서 저장 완료");
+ }catch(error){templateFailed(error)}
+}
+
+$("#addTemplateScopeBtn").onclick=async()=>{
+ if(!isAdmin())return;
+ const label=prompt("새 확인 범위 그룹명을 입력하세요.");
+ if(!label?.trim())return;
+
+ const key="scope_"+Date.now();
+ const scopes=Object.values(MODULES);
+ const nextOrder=scopes.length?Math.max(...scopes.map(x=>Number(x.order||0)))+1:0;
+
+ templateSaving("그룹 생성 중...");
+ try{
+   await setDoc(doc(db,"scopeTemplates",key),{
+     label:label.trim(),
+     desc:"프로젝트별 추가 확인 범위",
+     order:nextOrder,
+     active:true,
+     createdAt:serverTimestamp(),
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   templateSaved("그룹 생성 완료");
+ }catch(error){templateFailed(error)}
+};
+
+async function deleteSharedScope(scopeKey){
+ if(!isAdmin())return;
+ const scope=MODULES[scopeKey];
+ if(!confirm(`"${scope?.label||scopeKey}" 그룹과 그 안의 기본 항목을 삭제할까요?\n기존 프로젝트에는 영향을 주지 않습니다.`))return;
+
+ templateSaving("그룹 삭제 중...");
+ try{
+   const itemSnap=await getDocs(collection(db,"scopeTemplates",scopeKey,"items"));
+   let batch=writeBatch(db),count=0;
+   for(const itemDoc of itemSnap.docs){
+     batch.delete(itemDoc.ref);count++;
+     if(count===450){await batch.commit();batch=writeBatch(db);count=0}
+   }
+   if(count)await batch.commit();
+   await deleteDoc(doc(db,"scopeTemplates",scopeKey));
+   templateSaved("그룹 삭제 완료");
+ }catch(error){templateFailed(error)}
+}
 </script>
 </body></html>
