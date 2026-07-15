@@ -13,25 +13,12 @@ service cloud.firestore {
       return allowed()
         && get(/databases/$(database)/documents/allowedUsers/$(request.auth.token.email)).data.role == "admin";
     }
-
     match /allowedUsers/{email} {
       allow read: if signedIn() && request.auth.token.email == email;
-      allow create, update, delete: if admin();
-    }
-
-    match /templates/{templateId} {
-      allow read: if allowed();
       allow write: if admin();
-
-      match /items/{itemId} {
-        allow read: if allowed();
-        allow write: if admin();
-      }
     }
-
-    match /carriers/{carrierId} {
+    match /carriers/{projectId} {
       allow read, create, update, delete: if allowed();
-
       match /checklistItems/{itemId} {
         allow read, create, update, delete: if allowed();
       }
