@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function allowed(){ return request.auth != null && request.auth.token.email != null && exists(/databases/$(database)/documents/allowedUsers/$(request.auth.token.email)) && get(/databases/$(database)/documents/allowedUsers/$(request.auth.token.email)).data.active == true; }
+  function admin(){ return allowed() && get(/databases/$(database)/documents/allowedUsers/$(request.auth.token.email)).data.role == "admin"; }
+  match /allowedUsers/{email} { allow read: if request.auth != null && request.auth.token.email == email; allow write: if admin(); }
+  match /carriers/{id} { allow read,write: if allowed(); match /checklistItems/{itemId} { allow read,write: if allowed(); } }
+ }
+}
