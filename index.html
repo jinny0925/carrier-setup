@@ -330,6 +330,62 @@ function renderProjects(){
 
  $$("[data-pid]").forEach(r=>r.onclick=()=>openProject(r.dataset.pid));
 }
+function openProject(id){
+ hideAllPages();
+ $("#detailPage").classList.remove("hidden");
+ $("#navProjects").classList.add("active");
+
+ if(unsubProject)unsubProject();
+ if(unsubItems)unsubItems();
+
+ unsubProject=onSnapshot(
+   doc(db,"carriers",id),
+   s=>{
+     if(!s.exists())return;
+
+     currentProject={id:s.id,...s.data()};
+
+     $("#detailTitle").textContent=
+       currentProject.projectName||
+       currentProject.name||
+       "프로젝트";
+
+     $("#detailSub").textContent=
+       `${currentProject.name||"-"} · `+
+       `${TYPE_LABELS[currentProject.templateType||"newCarrier"]} · `+
+       `우선순위 ${currentProject.priority||"중간"} · `+
+       `${currentProject.origin||"-"} → ${currentProject.destination||"-"} · `+
+       `목표 ${currentProject.targetDate||currentProject.openDate||"-"}`;
+
+     renderScopes();
+   },
+   error=>{
+     console.error("프로젝트 정보 불러오기 실패:",error);
+     alert("프로젝트 정보를 불러오지 못했습니다: "+error.message);
+   }
+ );
+
+ unsubItems=onSnapshot(
+   query(
+     collection(db,"carriers",id,"checklistItems"),
+     orderBy("order")
+   ),
+   s=>{
+     currentItems=s.docs.map(d=>({id:d.id,...d.data()}));
+     renderChecklist();
+
+     if(selectedItemId){
+       const item=currentItems.find(x=>x.id===selectedItemId);
+       if(item)renderItemDetail(item);
+     }
+   },
+   error=>{
+     console.error("체크리스트 불러오기 실패:",error);
+     alert("체크리스트를 불러오지 못했습니다: "+error.message);
+   }
+ );
+}
+
 function renderScopes(){const arr=currentProject.scopeKeys?.length?currentProject.scopeKeys:[...new Set(currentItems.map(i=>i.scopeKey).filter(Boolean))];$("#scopeChips").innerHTML=arr.length?arr.map(k=>`<span class="chip">${esc(MODULES[k]?.label||k)}</span>`).join(""):'<span class="small">선택된 범위가 없습니다.</span>'}
 function renderChecklist(){const groups={};currentItems.forEach(i=>(groups[i.scopeKey||i.category||"basic"]??=[]).push(i));const doneCnt=currentItems.filter(done).length,pc=currentItems.length?Math.round(doneCnt/currentItems.length*100):0;$("#progressText").textContent=`전체 진행률 ${pc}% · ${doneCnt}/${currentItems.length}`;$("#checklistArea").innerHTML=Object.entries(groups).map(([k,arr])=>`<section class="category"><div class="cat-head"><div><span class="cat-title">${esc(MODULES[k]?.label||arr[0]?.category||k)}</span> <span class="small">(${arr.length}개)</span></div><button class="ghost" data-add-scope="${k}">+ 항목 추가</button></div>${arr.sort((a,b)=>(a.order||0)-(b.order||0)).map((i,idx)=>`<div class="item-row ${selectedItemId===i.id?"selected":""}" data-item="${i.id}"><div><input type="checkbox" data-check="${i.id}" ${done(i)?"checked":""}></div><div class="item-title clickable" data-open="${i.id}">${esc(i.title)}${i.lastEditedAt?`<div class="item-audit">수정 ${esc(i.updatedByName||i.updatedBy||"-")} · ${fmt(i.lastEditedAt)}</div>`:""}</div><div><span class="badge ${i.status==="완료"?"b-green":i.status==="확인 중"?"b-orange":"b-gray"}">${esc(i.status||"미확인")}</span></div><button class="icon-btn" data-up="${i.id}">↑</button><button class="icon-btn" data-down="${i.id}">↓</button><button class="danger" data-del="${i.id}">삭제</button></div>`).join("")}<div class="add-row" data-add-scope="${k}">+ 새 항목 추가</div></section>`).join("");$$("[data-open]").forEach(e=>e.onclick=()=>{
  selectedItemId=e.dataset.open;
