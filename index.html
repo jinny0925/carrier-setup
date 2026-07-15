@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Carrier Setup</title>
+<title>Carrier Setup V5</title>
 <style>
 :root{
   --bg:#f5f7fb;--card:#fff;--line:#dfe5ee;--text:#172033;--muted:#697386;
@@ -25,10 +25,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 .sidebar{background:#14213a;color:#fff;padding:20px 16px;height:calc(100vh - 66px);overflow-y:auto}.nav-title{font-size:12px;color:#9fb0cd;margin:18px 10px 8px}.nav-item{padding:11px 12px;border-radius:9px;margin-bottom:5px;cursor:pointer}.nav-item.active{background:#273a5f}.nav-item:hover{background:#203253}
 .main{padding:22px;overflow-y:auto;height:calc(100vh - 66px);min-height:0}.page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.page-head h1{margin:0;font-size:25px}.detail-sticky-head{position:sticky;top:-22px;z-index:25;background:var(--bg);padding:18px 0 12px;margin-top:-12px;border-bottom:1px solid #dfe5ee;box-shadow:0 8px 14px rgba(32,50,90,.06)}
 .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.summary-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}.summary-card strong{font-size:24px;display:block}
-.filters{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:9px;background:#fff;border:1px solid var(--line);padding:12px;border-radius:12px;margin-bottom:14px}
+.filters{display:grid;grid-template-columns:2fr repeat(5,1fr);gap:9px;background:#fff;border:1px solid var(--line);padding:12px;border-radius:12px;margin-bottom:14px}
 .project-table{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px solid #e9edf3;text-align:left;vertical-align:middle}th{background:#f7f9fc;font-size:12px;color:#5d687a}.clickable{cursor:pointer}.clickable:hover{background:#f8faff}
-.badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}.b-blue{background:#edf2ff;color:#3158d3}.b-green{background:#eaf8ef;color:#18763a}.b-orange{background:#fff3df;color:#a85a00}.b-gray{background:#f0f2f5;color:#5f6774}
+.badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}.b-blue{background:#edf2ff;color:#3158d3}.b-green{background:#eaf8ef;color:#18763a}.b-orange{background:#fff3df;color:#a85a00}.b-gray{background:#f0f2f5;color:#5f6774}.b-red{background:#fdecec;color:#b42318}.b-yellow{background:#fff4d8;color:#9a5b00}.b-low{background:#edf7ee;color:#2f7d32}
 .progress{height:8px;background:#e7ebf1;border-radius:999px;overflow:hidden}.progress div{height:100%;background:var(--primary)}
 .detail-layout{display:grid;grid-template-columns:minmax(620px,1.55fr) minmax(360px,.85fr);gap:16px;align-items:start}
 .panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 10px rgba(30,45,75,.035)}
@@ -50,10 +50,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 </style>
 </head>
 <body>
-<div id="loginView" class="login"><div class="login-card"><div style="font-size:42px">📦</div><h1>OPS 프로젝트 체크리스트</h1><p class="muted">OPS 운영 확인 프로젝트 관리</p><button id="loginBtn" class="primary" style="width:100%;margin-top:18px">Google 계정으로 로그인</button><p id="loginMsg" class="small"></p></div></div>
+<div id="loginView" class="login"><div class="login-card"><div style="font-size:42px">📦</div><h1>Carrier Setup</h1><p class="muted">OPS 운영 확인 프로젝트 관리</p><button id="loginBtn" class="primary" style="width:100%;margin-top:18px">Google 계정으로 로그인</button><p id="loginMsg" class="small"></p></div></div>
 
 <div id="appView" class="hidden">
-<header class="topbar"><div class="brand">📦 OPS 프로젝트 체크리스트</div><div class="user"><span id="saveState" class="save-state"></span><img id="userPhoto"><span id="userName"></span><button id="logoutBtn" class="ghost">로그아웃</button></div></header>
+<header class="topbar"><div class="brand">📦 Carrier Setup</div><div class="user"><span id="saveState" class="save-state"></span><img id="userPhoto"><span id="userName"></span><button id="logoutBtn" class="ghost">로그아웃</button></div></header>
 <div class="layout">
 <aside class="sidebar">
 <div class="nav-title">MENU</div>
@@ -66,8 +66,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 <section id="projectPage">
 <div class="page-head"><div><h1>프로젝트 목록</h1><div class="muted">운영 확인 현황과 미진행 항목을 관리합니다.</div></div><button id="newProjectBtn" class="primary">+ 신규 프로젝트</button></div>
 <div id="summary" class="summary"></div>
-<div class="filters"><input id="searchInput" placeholder="프로젝트명 또는 배송사 검색"><select id="typeFilter"><option value="">전체 유형</option><option value="newCarrier">신규 배송사 셋업</option><option value="development">기존 배송사 추가 개발</option><option value="policyChange">도착국 정책 변경 및 운영 배포</option></select><select id="statusFilter"><option value="">전체 상태</option><option>정보 수집</option><option>개발</option><option>테스트</option><option>운영 준비</option><option>완료</option></select><select id="countryFilter"><option value="">전체 국가</option></select><select id="delayFilter"><option value="">전체 일정</option><option value="overdue">지연만</option></select></div>
-<div class="project-table"><table><thead><tr><th>프로젝트명</th><th>배송사</th><th>유형</th><th>국가/노선</th><th>진행률</th><th>상태</th><th>지연</th><th>최근 수정</th></tr></thead><tbody id="projectRows"></tbody></table></div>
+<div class="filters"><input id="searchInput" placeholder="프로젝트명 또는 배송사 검색"><select id="typeFilter"><option value="">전체 유형</option><option value="newCarrier">신규 배송사 셋업</option><option value="development">기존 배송사 추가 개발</option><option value="policyChange">도착국 정책 변경 및 운영 배포</option></select><select id="statusFilter"><option value="">전체 상태</option><option>정보 수집</option><option>개발</option><option>테스트</option><option>운영 준비</option><option>완료</option></select><select id="priorityFilter"><option value="">전체 우선순위</option><option>높음</option><option>중간</option><option>낮음</option></select><select id="countryFilter"><option value="">전체 국가</option></select><select id="delayFilter"><option value="">전체 일정</option><option value="overdue">지연만</option></select></div>
+<div class="project-table"><table><thead><tr><th>프로젝트명</th><th>배송사</th><th>유형</th><th>우선순위</th><th>국가/노선</th><th>시작일</th><th>완료 목표일</th><th>최종 완료일</th><th>진행률</th><th>상태</th><th>지연</th><th>최근 수정</th></tr></thead><tbody id="projectRows"></tbody></table></div>
 </section>
 
 <section id="detailPage" class="hidden">
@@ -103,7 +103,11 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 
 <div id="createModal" class="modal-bg hidden"><div class="modal"><div class="modal-head"><h2>새 프로젝트 생성</h2><button id="closeCreateBtn" class="ghost">닫기</button></div><div class="modal-body">
 <div class="steps"><div class="step active" data-step="1">1. 기본 정보</div><div class="step" data-step="2">2. 확인 범위 선택</div><div class="step" data-step="3">3. 항목 구성</div><div class="step" data-step="4">4. 생성 완료</div></div>
-<div id="createStep1"><div class="form-grid"><label>배송사명<input id="cCarrier"></label><label>프로젝트 유형<select id="cType"><option value="newCarrier">신규 배송사 셋업</option><option value="development">기존 배송사 추가 개발</option><option value="policyChange">도착국 정책 변경 및 운영 배포</option></select></label><label style="grid-column:1/-1">프로젝트명<input id="cProject"></label><label>출발국<input id="cOrigin" value="KR"></label><label>도착국<input id="cDestination"></label><label>서비스명<input id="cService"></label><label>오픈·배포 예정일<input type="date" id="cOpenDate"></label></div></div>
+<div id="createStep1"><div class="form-grid"><label>배송사명<input id="cCarrier"></label><label>프로젝트 유형<select id="cType"><option value="newCarrier">신규 배송사 셋업</option><option value="development">기존 배송사 추가 개발</option><option value="policyChange">도착국 정책 변경 및 운영 배포</option></select></label><label style="grid-column:1/-1">프로젝트명<input id="cProject"></label><label>출발국<input id="cOrigin" value="KR"></label><label>도착국<input id="cDestination"></label><label>서비스명<input id="cService"></label>
+<label>우선순위<select id="cPriority"><option value="높음">높음</option><option value="중간" selected>중간</option><option value="낮음">낮음</option></select></label>
+<label>시작일<input type="date" id="cStartDate"></label>
+<label>완료 목표일<input type="date" id="cTargetDate"></label>
+<label>최종 완료일<input type="date" id="cCompletedDate"></label></div></div>
 <div id="createStep2" class="hidden"><h3>이번 프로젝트에서 확인할 범위 선택</h3><div id="scopeGrid" class="scope-grid"></div></div>
 <div id="createStep3" class="hidden"><div style="display:flex;justify-content:space-between;align-items:center"><div><h3>체크리스트 항목 구성</h3><div class="small">기본 항목을 불러온 뒤, 생성 전에도 삭제하거나 추가할 수 있습니다.</div></div><button id="addPreviewItemBtn" class="ghost">+ 새 항목 추가</button></div><div id="previewArea" style="margin-top:12px"></div></div>
 <div id="createStep4" class="hidden" style="text-align:center;padding:50px"><div style="font-size:50px">✅</div><h2>프로젝트가 생성되었습니다.</h2></div>
@@ -121,7 +125,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 <label>프로젝트 상태<select id="eStatus"><option>정보 수집</option><option>개발</option><option>테스트</option><option>운영 준비</option><option>완료</option></select></label>
 <label>출발국<input id="eOrigin"></label>
 <label>도착국<input id="eDestination"></label>
-<label>오픈·배포 예정일<input id="eOpenDate" type="date"></label>
+<label>우선순위<select id="ePriority"><option value="높음">높음</option><option value="중간">중간</option><option value="낮음">낮음</option></select></label>
+<label>시작일<input id="eStartDate" type="date"></label>
+<label>완료 목표일<input id="eTargetDate" type="date"></label>
+<label>최종 완료일<input id="eCompletedDate" type="date"></label>
 </div>
 <div style="text-align:right;margin-top:18px"><button id="saveProjectInfoBtn" class="primary">저장</button></div>
 </div></div></div>
@@ -143,8 +150,8 @@ let createStep=1,createScopes=new Set(["basic","operation","customs","lmd","api"
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const fmt=ts=>{if(!ts)return "-";const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString("ko-KR",{year:"2-digit",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})};
-const done=i=>i.status==="완료"||i.status==="해당 없음"||i.completed===true;
-const overdue=p=>p.openDate&&p.projectStatus!=="완료"&&new Date(p.openDate+"T23:59:59")<new Date();
+const done=i=>i.status==="완료"||i.status==="해당 없음"||i.completed===true;const priorityClass=p=>p==="높음"?"b-red":p==="낮음"?"b-low":"b-yellow";
+const overdue=p=>{const target=p.targetDate||p.openDate;return target&&p.projectStatus!=="완료"&&new Date(target+"T23:59:59")<new Date()};
 
 function saveState(t,ok=true){$("#saveState").textContent=t;$("#saveState").className="save-state "+(ok?"ok":"fail");setTimeout(()=>$("#saveState").textContent="",1800)}
 $("#loginBtn").onclick=()=>signInWithPopup(auth,provider).catch(e=>$("#loginMsg").textContent=e.message);
@@ -285,18 +292,43 @@ function subscribeSharedTemplates(){
 function subscribeProjects(){if(unsubProjects)unsubProjects();unsubProjects=onSnapshot(query(collection(db,"carriers"),orderBy("createdAt","desc")),s=>{projects=s.docs.map(d=>({id:d.id,...d.data()}));renderSummary();renderFilters();renderProjects()})}
 function renderSummary(){const total=projects.length,doing=projects.filter(p=>p.projectStatus!=="완료").length,doneCnt=projects.filter(p=>p.projectStatus==="완료").length,late=projects.filter(overdue).length;$("#summary").innerHTML=[["전체 프로젝트",total],["진행 중",doing],["완료",doneCnt],["지연",late]].map(([a,b])=>`<div class="summary-card"><span class="small">${a}</span><strong>${b}</strong></div>`).join("")}
 function renderFilters(){const v=$("#countryFilter").value,c=[...new Set(projects.map(p=>p.destination).filter(Boolean))].sort();$("#countryFilter").innerHTML='<option value="">전체 국가</option>'+c.map(x=>`<option>${esc(x)}</option>`).join("");$("#countryFilter").value=v}
-function renderProjects(){const q=$("#searchInput").value.toLowerCase(),t=$("#typeFilter").value,s=$("#statusFilter").value,c=$("#countryFilter").value,d=$("#delayFilter").value;const rows=projects.filter(p=>(`${p.projectName||""} ${p.name||""}`).toLowerCase().includes(q)&&(!t||(p.templateType||"newCarrier")===t)&&(!s||p.projectStatus===s)&&(!c||p.destination===c)&&(!d||overdue(p)));$("#projectRows").innerHTML=rows.length?rows.map(p=>{const pc=p.totalItems?Math.round((p.completedItems||0)/p.totalItems*100):0;return `<tr class="clickable" data-pid="${p.id}"><td><strong>${esc(p.projectName||p.serviceName||p.name)}</strong></td><td>${esc(p.name||"-")}</td><td><span class="badge b-blue">${esc(TYPE_LABELS[p.templateType||"newCarrier"])}</span></td><td>${esc(p.origin||"-")} → ${esc(p.destination||"-")}</td><td><div style="display:grid;grid-template-columns:1fr 40px;gap:8px;align-items:center"><div class="progress"><div style="width:${pc}%"></div></div><span>${pc}%</span></div></td><td><span class="badge ${p.projectStatus==="완료"?"b-green":"b-gray"}">${esc(p.projectStatus||"정보 수집")}</span></td><td>${overdue(p)?'<span class="badge b-orange">지연</span>':'-'}</td><td>${fmt(p.updatedAt)}</td></tr>`}).join(""):'<tr><td colspan="8" style="text-align:center;color:#697386;padding:35px">프로젝트가 없습니다.</td></tr>';$$("[data-pid]").forEach(r=>r.onclick=()=>openProject(r.dataset.pid))}
-["searchInput","typeFilter","statusFilter","countryFilter","delayFilter"].forEach(id=>$("#"+id).addEventListener(id==="searchInput"?"input":"change",renderProjects));
+function renderProjects(){
+ const q=$("#searchInput").value.toLowerCase();
+ const t=$("#typeFilter").value;
+ const s=$("#statusFilter").value;
+ const pr=$("#priorityFilter").value;
+ const c=$("#countryFilter").value;
+ const d=$("#delayFilter").value;
 
-function hideAllPages(){["projectPage","detailPage","templatePage","documentsPage","settingsPage"].forEach(id=>$("#"+id).classList.add("hidden"));$$(".nav-item").forEach(e=>e.classList.remove("active"))}function showProjects(){hideAllPages();$("#projectPage").classList.remove("hidden");$("#navProjects").classList.add("active")}function showDocuments(){hideAllPages();$("#documentsPage").classList.remove("hidden");$("#navDocuments").classList.add("active");loadDocuments()}function showSettings(){hideAllPages();$("#settingsPage").classList.remove("hidden");$("#navSettings").classList.add("active");renderSettings()}
-$("#backBtn").onclick=showProjects;$("#backProjectBtn").onclick=showProjects;$("#navProjects").onclick=showProjects;
-$("#navTemplates").onclick=()=>{hideAllPages();$("#templatePage").classList.remove("hidden");$("#navTemplates").classList.add("active");renderTemplateManager()};$("#navDocuments").onclick=showDocuments;$("#navSettings").onclick=showSettings;
+ const rows=projects.filter(p=>
+   (`${p.projectName||""} ${p.name||""}`.toLowerCase().includes(q)) &&
+   (!t||(p.templateType||"newCarrier")===t) &&
+   (!s||p.projectStatus===s) &&
+   (!pr||(p.priority||"중간")===pr) &&
+   (!c||p.destination===c) &&
+   (!d||overdue(p))
+ );
 
-function openProject(id){
- hideAllPages();$("#detailPage").classList.remove("hidden");$("#navProjects").classList.add("active");
- if(unsubProject)unsubProject();if(unsubItems)unsubItems();
- unsubProject=onSnapshot(doc(db,"carriers",id),s=>{if(!s.exists())return;currentProject={id:s.id,...s.data()};$("#detailTitle").textContent=currentProject.projectName||currentProject.name;$("#detailSub").textContent=`${currentProject.name||"-"} · ${TYPE_LABELS[currentProject.templateType||"newCarrier"]} · ${currentProject.origin||"-"} → ${currentProject.destination||"-"}`;renderScopes()});
- unsubItems=onSnapshot(query(collection(db,"carriers",id,"checklistItems"),orderBy("order")),s=>{currentItems=s.docs.map(d=>({id:d.id,...d.data()}));renderChecklist();if(selectedItemId){const i=currentItems.find(x=>x.id===selectedItemId);if(i)renderItemDetail(i)}})
+ $("#projectRows").innerHTML=rows.length?rows.map(p=>{
+   const pc=p.totalItems?Math.round((p.completedItems||0)/p.totalItems*100):0;
+   const priority=p.priority||"중간";
+   return `<tr class="clickable" data-pid="${p.id}">
+     <td><strong>${esc(p.projectName||p.serviceName||p.name)}</strong></td>
+     <td>${esc(p.name||"-")}</td>
+     <td><span class="badge b-blue">${esc(TYPE_LABELS[p.templateType||"newCarrier"])}</span></td>
+     <td><span class="badge ${priorityClass(priority)}">${esc(priority)}</span></td>
+     <td>${esc(p.origin||"-")} → ${esc(p.destination||"-")}</td>
+     <td>${esc(p.startDate||"-")}</td>
+     <td>${esc(p.targetDate||p.openDate||"-")}</td>
+     <td>${esc(p.completedDate||"-")}</td>
+     <td><div style="display:grid;grid-template-columns:1fr 40px;gap:8px;align-items:center"><div class="progress"><div style="width:${pc}%"></div></div><span>${pc}%</span></div></td>
+     <td><span class="badge ${p.projectStatus==="완료"?"b-green":"b-gray"}">${esc(p.projectStatus||"정보 수집")}</span></td>
+     <td>${overdue(p)?'<span class="badge b-orange">지연</span>':'-'}</td>
+     <td>${fmt(p.updatedAt)}</td>
+   </tr>`;
+ }).join(""):'<tr><td colspan="12" style="text-align:center;color:#697386;padding:35px">프로젝트가 없습니다.</td></tr>';
+
+ $$("[data-pid]").forEach(r=>r.onclick=()=>openProject(r.dataset.pid));
 }
 function renderScopes(){const arr=currentProject.scopeKeys?.length?currentProject.scopeKeys:[...new Set(currentItems.map(i=>i.scopeKey).filter(Boolean))];$("#scopeChips").innerHTML=arr.length?arr.map(k=>`<span class="chip">${esc(MODULES[k]?.label||k)}</span>`).join(""):'<span class="small">선택된 범위가 없습니다.</span>'}
 function renderChecklist(){const groups={};currentItems.forEach(i=>(groups[i.scopeKey||i.category||"basic"]??=[]).push(i));const doneCnt=currentItems.filter(done).length,pc=currentItems.length?Math.round(doneCnt/currentItems.length*100):0;$("#progressText").textContent=`전체 진행률 ${pc}% · ${doneCnt}/${currentItems.length}`;$("#checklistArea").innerHTML=Object.entries(groups).map(([k,arr])=>`<section class="category"><div class="cat-head"><div><span class="cat-title">${esc(MODULES[k]?.label||arr[0]?.category||k)}</span> <span class="small">(${arr.length}개)</span></div><button class="ghost" data-add-scope="${k}">+ 항목 추가</button></div>${arr.sort((a,b)=>(a.order||0)-(b.order||0)).map((i,idx)=>`<div class="item-row ${selectedItemId===i.id?"selected":""}" data-item="${i.id}"><div><input type="checkbox" data-check="${i.id}" ${done(i)?"checked":""}></div><div class="item-title clickable" data-open="${i.id}">${esc(i.title)}${i.lastEditedAt?`<div class="item-audit">수정 ${esc(i.updatedByName||i.updatedBy||"-")} · ${fmt(i.lastEditedAt)}</div>`:""}</div><div><span class="badge ${i.status==="완료"?"b-green":i.status==="확인 중"?"b-orange":"b-gray"}">${esc(i.status||"미확인")}</span></div><button class="icon-btn" data-up="${i.id}">↑</button><button class="icon-btn" data-down="${i.id}">↓</button><button class="danger" data-del="${i.id}">삭제</button></div>`).join("")}<div class="add-row" data-add-scope="${k}">+ 새 항목 추가</div></section>`).join("");$$("[data-open]").forEach(e=>e.onclick=()=>{
@@ -322,14 +354,14 @@ async function moveItem(id,dir){const item=currentItems.find(x=>x.id===id),same=
 $("#loadDefaultBtn").onclick=async()=>{const scopes=currentProject.scopeKeys||[],keys=new Set(currentItems.map(i=>`${i.scopeKey}||${i.title}`));let b=writeBatch(db),n=0;for(const k of scopes){for(const title of MODULES[k].items){if(keys.has(`${k}||${title}`))continue;b.set(doc(collection(db,"carriers",currentProject.id,"checklistItems")),{scopeKey:k,category:MODULES[k].label,title,order:n+100,required:true,status:"미확인",completed:false,createdAt:serverTimestamp()});n++}}if(n){await b.commit();await syncProgress();alert(`${n}개 기본 항목을 추가했습니다.`)}else alert("추가할 기본 항목이 없습니다.")};
 
 function renderScopeCards(){const make=(target,selected)=>{$(target).innerHTML=Object.entries(MODULES).map(([k,m])=>`<label class="scope-card ${selected.has(k)?"selected":""}" data-scope-card="${k}"><div><input type="checkbox" data-scope="${k}" ${selected.has(k)?"checked":""}><strong>${esc(m.label)}</strong></div><span class="small">${esc(m.desc)}</span></label>`).join("");$$(`${target} [data-scope]`).forEach(e=>e.onchange=()=>{if(e.checked)selected.add(e.dataset.scope);else selected.delete(e.dataset.scope);e.closest(".scope-card").classList.toggle("selected",e.checked)})};make("#scopeGrid",createScopes)}
-$("#newProjectBtn").onclick=()=>{$("#createModal").classList.remove("hidden");createStep=1;updateCreateStep();renderScopeCards()};
+$("#newProjectBtn").onclick=()=>{$("#createModal").classList.remove("hidden");createStep=1;$("#cPriority").value="중간";$("#cStartDate").value=new Date().toISOString().slice(0,10);$("#cTargetDate").value="";$("#cCompletedDate").value="";updateCreateStep();renderScopeCards()};
 $("#closeCreateBtn").onclick=()=>$("#createModal").classList.add("hidden");
 $("#prevCreateBtn").onclick=()=>{if(createStep>1){createStep--;updateCreateStep()}};
 $("#nextCreateBtn").onclick=async()=>{if(createStep===1){if(!$("#cCarrier").value.trim()||!$("#cProject").value.trim())return alert("배송사명과 프로젝트명을 입력하세요.");createStep=2;updateCreateStep()}else if(createStep===2){if(!createScopes.size)return alert("확인 범위를 하나 이상 선택하세요.");createItems=[];for(const k of createScopes)MODULES[k].items.forEach((title,idx)=>createItems.push({scopeKey:k,title,required:true,order:idx}));createStep=3;renderPreview();updateCreateStep()}else if(createStep===3){await createProject();createStep=4;updateCreateStep();$("#nextCreateBtn").textContent="프로젝트 열기"}else if(createStep===4){$("#createModal").classList.add("hidden");if(currentProject)openProject(currentProject.id)}};
 function updateCreateStep(){for(let i=1;i<=4;i++){$(`#createStep${i}`).classList.toggle("hidden",i!==createStep);$(`.step[data-step="${i}"]`).classList.toggle("active",i===createStep)}$("#prevCreateBtn").style.visibility=createStep===1?"hidden":"visible";$("#nextCreateBtn").textContent=createStep===3?"프로젝트 생성":createStep===4?"프로젝트 열기":"다음 단계"}
 function renderPreview(){const groups={};createItems.forEach((i,idx)=>(groups[i.scopeKey]??=[]).push({...i,idx}));$("#previewArea").innerHTML=Object.entries(groups).map(([k,arr])=>`<div class="preview-category"><div class="preview-head">${esc(MODULES[k].label)}</div>${arr.map(x=>`<div class="preview-item"><input data-preview-title="${x.idx}" value="${esc(x.title)}"><select data-preview-required="${x.idx}"><option value="true" ${x.required?"selected":""}>필수</option><option value="false" ${!x.required?"selected":""}>선택</option></select><button class="danger" data-preview-del="${x.idx}">×</button></div>`).join("")}</div>`).join("");$$("[data-preview-title]").forEach(e=>e.oninput=()=>createItems[+e.dataset.previewTitle].title=e.value);$$("[data-preview-required]").forEach(e=>e.onchange=()=>createItems[+e.dataset.previewRequired].required=e.value==="true");$$("[data-preview-del]").forEach(e=>e.onclick=()=>{createItems.splice(+e.dataset.previewDel,1);renderPreview()})}
 $("#addPreviewItemBtn").onclick=()=>{const k=[...createScopes][0],title=prompt("추가할 항목명을 입력하세요.");if(!title)return;createItems.push({scopeKey:k,title,required:false,order:999});renderPreview()};
-async function createProject(){const ref=await addDoc(collection(db,"carriers"),{name:$("#cCarrier").value.trim(),projectName:$("#cProject").value.trim(),templateType:$("#cType").value,origin:$("#cOrigin").value.trim().toUpperCase(),destination:$("#cDestination").value.trim().toUpperCase(),serviceName:$("#cService").value.trim(),openDate:$("#cOpenDate").value,projectStatus:"정보 수집",scopeKeys:[...createScopes],completedItems:0,totalItems:createItems.length,createdAt:serverTimestamp(),createdBy:me.email,updatedAt:serverTimestamp(),updatedBy:me.email});let b=writeBatch(db);createItems.forEach((i,idx)=>b.set(doc(collection(db,"carriers",ref.id,"checklistItems")),{scopeKey:i.scopeKey,category:MODULES[i.scopeKey].label,title:i.title,order:idx,required:i.required,status:"미확인",completed:false,checkContent:"",carrierAnswer:"",internalNote:"",evidenceUrl:"",note:"",confirmedDate:"",createdAt:serverTimestamp()}));await b.commit();currentProject={id:ref.id};saveState("프로젝트 생성 완료")}
+async function createProject(){const ref=await addDoc(collection(db,"carriers"),{name:$("#cCarrier").value.trim(),projectName:$("#cProject").value.trim(),templateType:$("#cType").value,origin:$("#cOrigin").value.trim().toUpperCase(),destination:$("#cDestination").value.trim().toUpperCase(),serviceName:$("#cService").value.trim(),priority:$("#cPriority").value,startDate:$("#cStartDate").value,targetDate:$("#cTargetDate").value,completedDate:$("#cCompletedDate").value,projectStatus:"정보 수집",scopeKeys:[...createScopes],completedItems:0,totalItems:createItems.length,createdAt:serverTimestamp(),createdBy:me.email,updatedAt:serverTimestamp(),updatedBy:me.email});let b=writeBatch(db);createItems.forEach((i,idx)=>b.set(doc(collection(db,"carriers",ref.id,"checklistItems")),{scopeKey:i.scopeKey,category:MODULES[i.scopeKey].label,title:i.title,order:idx,required:i.required,status:"미확인",completed:false,checkContent:"",carrierAnswer:"",internalNote:"",evidenceUrl:"",note:"",confirmedDate:"",createdAt:serverTimestamp()}));await b.commit();currentProject={id:ref.id};saveState("프로젝트 생성 완료")}
 $("#scopeEditBtn").onclick=()=>{const selected=new Set(currentProject.scopeKeys||[]);$("#scopeModal").classList.remove("hidden");$("#editScopeGrid").innerHTML=Object.entries(MODULES).map(([k,m])=>`<label class="scope-card ${selected.has(k)?"selected":""}"><input type="checkbox" data-edit-scope="${k}" ${selected.has(k)?"checked":""}><strong>${esc(m.label)}</strong><span class="small">${esc(m.desc)}</span></label>`).join("");$$("[data-edit-scope]").forEach(e=>e.onchange=()=>e.closest(".scope-card").classList.toggle("selected",e.checked))};
 $("#closeScopeBtn").onclick=()=>$("#scopeModal").classList.add("hidden");
 $("#saveScopeBtn").onclick=async()=>{
@@ -389,10 +421,10 @@ $("#editProjectBtn").onclick=()=>{
  $("#eStatus").value=currentProject.projectStatus||"정보 수집";
  $("#eOrigin").value=currentProject.origin||"";
  $("#eDestination").value=currentProject.destination||"";
- $("#eOpenDate").value=currentProject.openDate||"";
+ $("#ePriority").value=currentProject.priority||"중간";$("#eStartDate").value=currentProject.startDate||"";$("#eTargetDate").value=currentProject.targetDate||currentProject.openDate||"";$("#eCompletedDate").value=currentProject.completedDate||"";
  $("#editProjectModal").classList.remove("hidden");
 };
-$("#closeEditProjectBtn").onclick=()=>$("#editProjectModal").classList.add("hidden");
+$("#closeEditProjectBtn").onclick=()=>$("#editProjectModal").classList.add("hidden");$("#eStatus").onchange=()=>{if($("#eStatus").value==="완료"&&!$("#eCompletedDate").value)$("#eCompletedDate").value=new Date().toISOString().slice(0,10)};
 $("#saveProjectInfoBtn").onclick=async()=>{
  if(!currentProject)return;
  const carrierName=$("#eCarrier").value.trim();
@@ -408,7 +440,12 @@ $("#saveProjectInfoBtn").onclick=async()=>{
      projectStatus:$("#eStatus").value,
      origin:$("#eOrigin").value.trim().toUpperCase(),
      destination:$("#eDestination").value.trim().toUpperCase(),
-     openDate:$("#eOpenDate").value,
+     priority:$("#ePriority").value,
+     startDate:$("#eStartDate").value,
+     targetDate:$("#eTargetDate").value,
+     completedDate:$("#eStatus").value==="완료"
+       ? ($("#eCompletedDate").value || new Date().toISOString().slice(0,10))
+       : $("#eCompletedDate").value,
      updatedAt:serverTimestamp(),
      updatedBy:me.email
    });
