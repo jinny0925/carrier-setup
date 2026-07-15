@@ -1,8 +1,29 @@
-# Carrier Setup STEP 2
+# Carrier Setup V3 적용 방법
 
-1. Firebase Console > Firestore > 규칙에서 `firestore.rules` 전체 내용을 붙여넣고 게시합니다.
-2. `index.html`을 GitHub 저장소에 올리고 GitHub Pages를 켭니다.
-3. Firebase Console > Authentication > 설정 > 승인된 도메인에 `사용자명.github.io`를 추가합니다.
-4. Google 로그인 후 사용합니다. `allowedUsers`에 있고 `active: true`인 계정만 접근됩니다.
+## 중요: 기존 Firestore 데이터는 유지됩니다.
 
-포함 기능: 배송사 추가/삭제, 100개 내외 체크리스트 자동 생성, 담당자/상태, 자동 저장, 실시간 공동 편집, 진행률, OneDrive 링크.
+### 1. GitHub 파일 교체
+기존 저장소의 `index.html`을 이 압축파일의 `index.html`로 교체하고 Commit 합니다.
+
+### 2. Firestore 규칙 교체
+Firebase Console → Firestore Database → 규칙에서
+`firestore.rules` 내용을 전체 붙여넣고 게시합니다.
+
+### 3. 강력 새로고침
+GitHub Pages 배포가 완료된 뒤 브라우저에서 Ctrl + F5를 누릅니다.
+
+## V3 기능
+- 완료/해당 없음 진행률 포함
+- 상태 ↔ 체크박스 자동 연동
+- 배송사와 하위 체크리스트 완전 삭제
+- 프로젝트 현황/검색/상태·담당자·국가·지연 필터
+- 관리자 템플릿 관리
+- 기존 프로젝트에 누락 템플릿 일괄 추가
+- 항목별 최종 수정자와 수정시간
+- 저장 상태 표시
+- 동시 수정 충돌 경고
+- 운영/개발/정산/팀장 승인
+
+## 기존 항목에 관한 참고
+기존 데이터에는 `revision`이 없을 수 있지만 자동으로 0으로 처리됩니다.
+기존 항목의 수정자명은 다음 수정 시부터 표시됩니다.
