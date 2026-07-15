@@ -71,10 +71,10 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 </section>
 
 <section id="detailPage" class="hidden">
-<div class="page-head"><div><button id="backBtn" class="ghost">← 목록</button><h1 id="detailTitle" style="display:inline-block;margin-left:10px"></h1><div id="detailSub" class="muted" style="margin-left:92px"></div></div><div><button id="deleteProjectBtn" class="danger">프로젝트 삭제</button></div></div>
+<div class="page-head"><div><button id="backBtn" class="ghost">← 목록</button><h1 id="detailTitle" style="display:inline-block;margin-left:10px"></h1><div id="detailSub" class="muted" style="margin-left:92px"></div></div><div><button id="editProjectBtn" class="ghost">프로젝트 정보 수정</button> <button id="deleteProjectBtn" class="danger">프로젝트 삭제</button></div></div>
 <div class="detail-layout">
 <div>
-<div class="panel" style="margin-bottom:14px"><div class="panel-head"><div><strong>선택된 확인 범위</strong><div class="small">필요한 범위와 항목을 자유롭게 추가·삭제할 수 있습니다.</div></div><button id="scopeEditBtn" class="ghost">범위 수정</button></div><div class="panel-body"><div id="scopeChips" class="chips"></div></div></div>
+<div class="panel" style="margin-bottom:14px"><div class="panel-head"><div><strong>이 프로젝트에 적용된 확인 범위</strong><div class="small">프로젝트 생성 시 선택한 대분류입니다. 범위를 추가하면 해당 그룹의 기본 체크항목을 불러올 수 있습니다.</div></div><button id="scopeEditBtn" class="ghost">범위 수정</button></div><div class="panel-body"><div id="scopeChips" class="chips"></div></div></div>
 <div class="panel"><div class="panel-head"><div><strong>체크리스트 항목 구성</strong><div id="progressText" class="small"></div></div><div><button id="loadDefaultBtn" class="ghost">기본 항목 불러오기</button></div></div><div id="checklistArea" class="panel-body"></div></div>
 </div>
 <div>
@@ -98,6 +98,22 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 <div style="display:flex;justify-content:space-between;margin-top:20px"><button id="prevCreateBtn" class="ghost">이전</button><button id="nextCreateBtn" class="primary">다음 단계</button></div>
 </div></div></div>
 
+<div id="editProjectModal" class="modal-bg hidden"><div class="modal" style="width:min(760px,96vw)">
+<div class="modal-head"><h2>프로젝트 정보 수정</h2><button id="closeEditProjectBtn" class="ghost">닫기</button></div>
+<div class="modal-body">
+<div class="form-grid">
+<label>배송사명<input id="eCarrier"></label>
+<label>프로젝트 유형<select id="eType"><option value="newCarrier">신규 배송사 셋업</option><option value="development">기존 배송사 추가 개발</option><option value="policyChange">도착국 정책 변경 및 운영 배포</option></select></label>
+<label style="grid-column:1/-1">프로젝트명<input id="eProject"></label>
+<label>서비스명<input id="eService"></label>
+<label>프로젝트 상태<select id="eStatus"><option>정보 수집</option><option>개발</option><option>테스트</option><option>운영 준비</option><option>완료</option></select></label>
+<label>출발국<input id="eOrigin"></label>
+<label>도착국<input id="eDestination"></label>
+<label>오픈·배포 예정일<input id="eOpenDate" type="date"></label>
+</div>
+<div style="text-align:right;margin-top:18px"><button id="saveProjectInfoBtn" class="primary">저장</button></div>
+</div></div></div>
+
 <div id="scopeModal" class="modal-bg hidden"><div class="modal" style="width:min(820px,96vw)"><div class="modal-head"><h2>확인 범위 수정</h2><button id="closeScopeBtn" class="ghost">닫기</button></div><div class="modal-body"><div id="editScopeGrid" class="scope-grid"></div><div style="text-align:right;margin-top:15px"><button id="saveScopeBtn" class="primary">범위 저장</button></div></div></div></div>
 
 <script type="module">
@@ -106,7 +122,7 @@ import {getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} f
 import {getFirestore,doc,getDoc,getDocs,collection,addDoc,deleteDoc,updateDoc,setDoc,writeBatch,serverTimestamp,query,orderBy,onSnapshot} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 const firebaseConfig={apiKey:"AIzaSyCSua6rhbsibC3liQdZPL-twVA943jvDsE",authDomain:"carrier-setup.firebaseapp.com",projectId:"carrier-setup",storageBucket:"carrier-setup.firebasestorage.app",messagingSenderId:"746426408870",appId:"1:746426408870:web:19259d781a87b826ecf967"};
-const MODULES={"basic": {"label": "기본정보", "desc": "서비스, 일정, 담당 창구, 기본 운영 조건", "items": ["서비스명 및 상품명 확인", "출발국 / 도착국 확인", "서비스 코드 확인", "서비스 오픈 또는 배포 예정일 확인", "운영 담당 창구 및 비상 연락처 확인"]}, "operation": {"label": "운영 정책", "desc": "배송 조건, 제한 품목, 배송 가능 여부", "items": ["발송 가능 품목 확인", "배송 제한 품목 확인", "배송 불가 품목 확인", "취급 제한 및 보상 제외 품목 확인", "긴급·우선 배송 가능 여부 확인"]}, "customs": {"label": "통관/관세", "desc": "HS 코드, 면세 한도, 관세 및 통관 기준", "items": ["면세 한도 확인", "관세·부가세 납부 주체 확인", "필수 통관정보 확인", "수취인 Tax ID / 개인통관정보 확인", "통관 보류 및 실패 처리 기준 확인", "통관 상태코드 매핑 확인"]}, "lmd": {"label": "LMD 정책", "desc": "배송 시도, 재배송, 반송, 불가지역", "items": ["배송 시도 횟수 확인", "재배달 가능 여부 및 조건 확인", "반송 처리 정책 확인", "반송 화물 보관 기간 확인", "폐기 가능 여부 및 비용 확인", "재배송 가능 여부 및 비용 확인", "배송 불가 지역 확인", "POD 및 서명 배송 여부 확인", "LMD 상태코드 매핑 확인"]}, "api": {"label": "API 개발", "desc": "API 명세, 인증, 상태코드, 웹훅", "items": ["API 명세 수령 및 검토", "인증 방식 확인", "엔드포인트 목록 확인", "요청·응답 데이터 구조 확인", "오류코드 및 예외처리 확인", "상태코드 및 이벤트 매핑 확인", "Webhook 제공 여부 확인", "API 테스트 계정 수령", "API 연동 테스트 완료"]}, "label": {"label": "송장/라벨", "desc": "송장 발번, 양식, 규격, 출력 조건", "items": ["송장 사전발번 여부 확인", "송장 양식 및 샘플 확인", "운송장 사이즈 확인", "출력 DPI 및 규격 확인", "송장 취소·재발행 기준 확인", "송장 수신 API 확인", "송장 유효기간 확인"]}, "cost": {"label": "원가/정산", "desc": "통관비, 배송비, 부대비용, 정산", "items": ["배송비 확인", "통관비 확인", "유류할증료 확인", "Remote Area 비용 확인", "재배송·반송·폐기 비용 확인", "과금 중량 및 부피무게 기준 확인", "판매가 반영 확인", "원가 마스터 반영 확인", "정산 주기 및 데이터 형식 확인"]}, "notice": {"label": "고객 공지", "desc": "공지, FAQ, 내부 전달 및 교육", "items": ["고객 공지 필요 여부 확인", "공지 초안 작성", "공지 내용 검토 및 승인", "공지 게시", "내부 운영 공지", "상담팀 전달", "FAQ 및 매뉴얼 수정"]}, "test": {"label": "테스트 및 운영 배포", "desc": "테스트 계획, 운영 배포, 모니터링", "items": ["테스트 계획 수립", "테스트 시나리오 확인", "테스트 발송 및 결과 확인", "운영 배포 일정 확정", "운영 배포 승인", "운영 배포 완료", "배포 후 모니터링 계획", "초기 주문 모니터링", "안정화 완료 확인"]}};
+const MODULES={"basic": {"label": "기본정보", "desc": "서비스, 일정, 담당 창구, 기본 운영 조건", "items": ["서비스명 및 상품명 확인", "출발국 / 도착국 확인", "서비스 코드 확인", "서비스 오픈 또는 배포 예정일 확인", "운영 담당 창구 및 비상 연락처 확인"]}, "operation": {"label": "운영 정책", "desc": "배송 조건, 제한 품목, 배송 가능 여부", "items": ["발송 가능 품목 확인", "배송 제한 품목 확인", "배송 불가 품목 확인", "취급 제한 및 보상 제외 품목 확인", "긴급·우선 배송 가능 여부 확인"]}, "customs": {"label": "통관/관세", "desc": "HS 코드, 면세 한도, 관세 및 통관 기준", "items": ["면세 한도 확인", "관세·부가세 납부 주체 확인", "필수 통관정보 확인", "수취인 Tax ID / 개인통관정보 확인", "통관 보류 및 실패 처리 기준 확인", "통관 상태코드 매핑 확인"]}, "lmd": {"label": "LMD 정책", "desc": "배송 시도, 재배송, 반송, 불가지역", "items": ["배송 시도 횟수 확인", "재배달 가능 여부 및 조건 확인", "반송 처리 정책 확인", "반송 화물 보관 기간 확인", "폐기 가능 여부 및 비용 확인", "재배송 가능 여부 및 비용 확인", "배송 불가 지역 확인", "POD 및 서명 배송 여부 확인", "LMD 상태코드 매핑 확인"]}, "api": {"label": "API 개발", "desc": "API 명세, 인증, 상태코드, 웹훅", "items": ["API 명세 수령 및 검토", "인증 방식 확인", "엔드포인트 목록 확인", "요청·응답 데이터 구조 확인", "오류코드 및 예외처리 확인", "상태코드 및 이벤트 매핑 확인", "Webhook 제공 여부 확인", "API 테스트 계정 수령", "API 연동 테스트 완료"]}, "label": {"label": "송장/라벨", "desc": "송장 발번, 양식, 규격, 출력 조건", "items": ["송장 사전발번 여부 확인", "송장 양식 및 샘플 확인", "운송장 사이즈 확인", "출력 DPI 및 규격 확인", "송장 취소·재발행 기준 확인", "송장 수신 API 확인", "송장 유효기간 확인"]}, "cost": {"label": "원가/정산", "desc": "통관비, 배송비, 부대비용, 정산", "items": ["배송비 확인", "통관비 확인", "유류할증료 확인", "Remote Area 비용 확인", "재배송·반송·폐기 비용 확인", "과금 중량 및 부피무게 기준 확인", "판매가 반영 확인", "원가 마스터 반영 확인", "정산 주기 및 데이터 형식 확인"]}, "notice": {"label": "고객 공지", "desc": "공지, FAQ, 내부 전달 및 교육", "items": ["고객 공지 필요 여부 확인", "공지 초안 작성", "공지 내용 검토 및 승인", "공지 게시", "내부 운영 공지", "상담팀 전달", "FAQ 및 매뉴얼 수정"]}, "test": {"label": "테스트 및 운영 배포", "desc": "테스트 계획, 운영 배포, 모니터링", "items": ["테스트 계획 수립", "테스트 시나리오 확인", "테스트 발송 및 결과 확인", "운영 배포 일정 확정", "운영 배포 승인", "운영 배포 완료", "배포 후 모니터링 계획", "초기 주문 모니터링", "안정화 완료 확인"]}, "etc": {"label": "기타", "desc": "프로젝트별 추가 확인이 필요한 예외·특이사항", "items": ["추가 확인 필요사항 정리", "예외 처리 기준 확인", "관련 부서 협의사항 확인", "미결 이슈 및 후속 조치 확인"]}};
 const TYPE_LABELS={newCarrier:"신규 배송사 셋업",development:"기존 배송사 추가 개발",policyChange:"도착국 정책 변경 및 운영 배포"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),provider=new GoogleAuthProvider();
 let me=null,projects=[],currentProject=null,currentItems=[],selectedItemId=null,unsubProjects=null,unsubProject=null,unsubItems=null;
@@ -167,7 +183,94 @@ $("#addPreviewItemBtn").onclick=()=>{const k=[...createScopes][0],title=prompt("
 async function createProject(){const ref=await addDoc(collection(db,"carriers"),{name:$("#cCarrier").value.trim(),projectName:$("#cProject").value.trim(),templateType:$("#cType").value,origin:$("#cOrigin").value.trim().toUpperCase(),destination:$("#cDestination").value.trim().toUpperCase(),serviceName:$("#cService").value.trim(),openDate:$("#cOpenDate").value,projectStatus:"정보 수집",scopeKeys:[...createScopes],completedItems:0,totalItems:createItems.length,createdAt:serverTimestamp(),createdBy:me.email,updatedAt:serverTimestamp(),updatedBy:me.email});let b=writeBatch(db);createItems.forEach((i,idx)=>b.set(doc(collection(db,"carriers",ref.id,"checklistItems")),{scopeKey:i.scopeKey,category:MODULES[i.scopeKey].label,title:i.title,order:idx,required:i.required,status:"미확인",completed:false,checkContent:"",carrierAnswer:"",internalNote:"",evidenceUrl:"",note:"",confirmedDate:"",createdAt:serverTimestamp()}));await b.commit();currentProject={id:ref.id};saveState("프로젝트 생성 완료")}
 $("#scopeEditBtn").onclick=()=>{const selected=new Set(currentProject.scopeKeys||[]);$("#scopeModal").classList.remove("hidden");$("#editScopeGrid").innerHTML=Object.entries(MODULES).map(([k,m])=>`<label class="scope-card ${selected.has(k)?"selected":""}"><input type="checkbox" data-edit-scope="${k}" ${selected.has(k)?"checked":""}><strong>${esc(m.label)}</strong><span class="small">${esc(m.desc)}</span></label>`).join("");$$("[data-edit-scope]").forEach(e=>e.onchange=()=>e.closest(".scope-card").classList.toggle("selected",e.checked))};
 $("#closeScopeBtn").onclick=()=>$("#scopeModal").classList.add("hidden");
-$("#saveScopeBtn").onclick=async()=>{const keys=$$("[data-edit-scope]:checked").map(e=>e.dataset.editScope);await updateDoc(doc(db,"carriers",currentProject.id),{scopeKeys:keys,updatedAt:serverTimestamp(),updatedBy:me.email});$("#scopeModal").classList.add("hidden");saveState("범위 저장 완료")};
+$("#saveScopeBtn").onclick=async()=>{
+ const keys=$$("[data-edit-scope]:checked").map(e=>e.dataset.editScope);
+ const oldKeys=new Set(currentProject.scopeKeys||[]);
+ const added=keys.filter(k=>!oldKeys.has(k));
+
+ await updateDoc(doc(db,"carriers",currentProject.id),{
+   scopeKeys:keys,
+   updatedAt:serverTimestamp(),
+   updatedBy:me.email
+ });
+
+ if(added.length && confirm("새로 추가한 범위의 기본 체크항목도 함께 불러올까요?")){
+   const existing=new Set(currentItems.map(i=>`${i.scopeKey}||${i.title}`));
+   let batch=writeBatch(db);
+   let count=0;
+   let orderBase=currentItems.length+100;
+
+   for(const key of added){
+     for(const title of MODULES[key].items){
+       if(existing.has(`${key}||${title}`))continue;
+       batch.set(doc(collection(db,"carriers",currentProject.id,"checklistItems")),{
+         scopeKey:key,
+         category:MODULES[key].label,
+         title,
+         order:orderBase+count,
+         required:true,
+         status:"미확인",
+         completed:false,
+         checkContent:"",
+         carrierAnswer:"",
+         internalNote:"",
+         evidenceUrl:"",
+         note:"",
+         confirmedDate:"",
+         createdAt:serverTimestamp()
+       });
+       count++;
+     }
+   }
+
+   if(count)await batch.commit();
+   await syncProgress();
+ }
+
+ $("#scopeModal").classList.add("hidden");
+ saveState("범위 저장 완료");
+};
+
+$("#editProjectBtn").onclick=()=>{
+ if(!currentProject)return;
+ $("#eCarrier").value=currentProject.name||"";
+ $("#eProject").value=currentProject.projectName||"";
+ $("#eType").value=currentProject.templateType||"newCarrier";
+ $("#eService").value=currentProject.serviceName||"";
+ $("#eStatus").value=currentProject.projectStatus||"정보 수집";
+ $("#eOrigin").value=currentProject.origin||"";
+ $("#eDestination").value=currentProject.destination||"";
+ $("#eOpenDate").value=currentProject.openDate||"";
+ $("#editProjectModal").classList.remove("hidden");
+};
+$("#closeEditProjectBtn").onclick=()=>$("#editProjectModal").classList.add("hidden");
+$("#saveProjectInfoBtn").onclick=async()=>{
+ if(!currentProject)return;
+ const carrierName=$("#eCarrier").value.trim();
+ const projectName=$("#eProject").value.trim();
+ if(!carrierName||!projectName)return alert("배송사명과 프로젝트명을 입력하세요.");
+
+ try{
+   await updateDoc(doc(db,"carriers",currentProject.id),{
+     name:carrierName,
+     projectName,
+     templateType:$("#eType").value,
+     serviceName:$("#eService").value.trim(),
+     projectStatus:$("#eStatus").value,
+     origin:$("#eOrigin").value.trim().toUpperCase(),
+     destination:$("#eDestination").value.trim().toUpperCase(),
+     openDate:$("#eOpenDate").value,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+   $("#editProjectModal").classList.add("hidden");
+   saveState("프로젝트 정보 저장 완료");
+ }catch(error){
+   console.error(error);
+   alert("프로젝트 정보 저장에 실패했습니다: "+error.message);
+ }
+};
+
 $("#deleteProjectBtn").onclick=async()=>{if(prompt(`삭제하려면 프로젝트명 "${currentProject.projectName}"을 입력하세요.`)!==currentProject.projectName)return;const s=await getDocs(collection(db,"carriers",currentProject.id,"checklistItems"));let b=writeBatch(db);s.docs.forEach(d=>b.delete(d.ref));await b.commit();await deleteDoc(doc(db,"carriers",currentProject.id));showProjects()};
 
 function renderTemplateManager(){$("#templateManager").innerHTML=Object.entries(MODULES).map(([k,m])=>`<section class="category"><div class="cat-head"><div><strong>${esc(m.label)}</strong><div class="small">${esc(m.desc)}</div></div></div>${m.items.map((x,i)=>`<div class="item-row" style="grid-template-columns:1fr 80px"><input data-template-item="${k}|${i}" value="${esc(x)}"><button class="danger" data-template-del="${k}|${i}">삭제</button></div>`).join("")}<div class="add-row" data-template-add="${k}">+ 항목 추가</div></section>`).join("");$$("[data-template-item]").forEach(e=>e.onchange=()=>{const[k,i]=e.dataset.templateItem.split("|");MODULES[k].items[+i]=e.value;saveState("브라우저 템플릿 수정됨")});$$("[data-template-del]").forEach(e=>e.onclick=()=>{const[k,i]=e.dataset.templateDel.split("|");MODULES[k].items.splice(+i,1);renderTemplateManager()});$$("[data-template-add]").forEach(e=>e.onclick=()=>{const t=prompt("새 기본 항목명을 입력하세요.");if(t){MODULES[e.dataset.templateAdd].items.push(t);renderTemplateManager()}})}
