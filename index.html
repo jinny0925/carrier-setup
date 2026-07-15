@@ -93,8 +93,22 @@ onAuthStateChanged(auth,async user=>{
 });
 
 async function ensureTemplate(){
- const s=await getDocs(query(collection(db,"templates","default","items"),orderBy("order")));
- if(s.empty&&me.profile.role==="admin"){const b=writeBatch(db);DEFAULT_TEMPLATE.forEach((x,i)=>b.set(doc(collection(db,"templates","default","items")),{...x,order:i,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));await b.commit()}
+ try{
+   const s=await getDocs(query(collection(db,"templates","default","items"),orderBy("order")));
+   if(s.empty&&String(me.profile.role||"").toLowerCase()==="admin"){
+     const b=writeBatch(db);
+     DEFAULT_TEMPLATE.forEach((x,i)=>{
+       b.set(
+         doc(collection(db,"templates","default","items")),
+         {...x,order:i,createdAt:serverTimestamp(),updatedAt:serverTimestamp()}
+       );
+     });
+     await b.commit();
+   }
+ }catch(error){
+   console.warn("템플릿 초기화 건너뜀:",error);
+   // 템플릿 권한에 문제가 있어도 프로젝트 목록과 신규 생성은 계속 사용
+ }
 }
 function subscribeCarriers(){if(unsubCarriers)unsubCarriers();unsubCarriers=onSnapshot(query(collection(db,"carriers"),orderBy("createdAt","desc")),s=>{carriers=s.docs.map(d=>({id:d.id,...d.data()}));renderFilters();renderList();renderSummary();if(cid&&!carriers.some(c=>c.id===cid))clearDetail()})}
 function renderSummary(){const all=carriers.length,done=carriers.filter(c=>c.projectStatus==="완료").length,late=carriers.filter(overdue).length,avg=all?Math.round(carriers.reduce((a,c)=>a+progress(c),0)/all):0;$("#summary").innerHTML=`<div><strong>${all}</strong><span class="small">전체</span></div><div><strong>${done}</strong><span class="small">완료</span></div><div><strong>${late}</strong><span class="small">지연</span></div><div><strong>${avg}%</strong><span class="small">평균</span></div>`}
@@ -121,8 +135,97 @@ $("#archiveBtn").onclick=async()=>{if(!cid)return;await updateDoc(doc(db,"carrie
 $("#deleteCarrierBtn").onclick=async()=>{if(!cid)return;const name=currentCarrier.name||"";if(prompt(`완전 삭제하려면 배송사명 "${name}"을 입력하세요.`)!==name)return;setSave("saving","삭제 중...");const snap=await getDocs(collection(db,"carriers",cid,"checklistItems"));let batch=writeBatch(db),n=0;for(const d of snap.docs){batch.delete(d.ref);n++;if(n===450){await batch.commit();batch=writeBatch(db);n=0}}if(n)await batch.commit();await deleteDoc(doc(db,"carriers",cid));setSave("saved","삭제 완료");clearDetail()};
 
 $("#newCarrierBtn").onclick=()=>$("#newCarrierModal").classList.remove("hidden");$("#cancelNewBtn").onclick=()=>$("#newCarrierModal").classList.add("hidden");
-async function loadTemplate(){const s=await getDocs(query(collection(db,"templates","default","items"),orderBy("order")));return s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false)}
-$("#createCarrierBtn").onclick=async()=>{const name=$("#newName").value.trim();if(!name)return alert("배송사명을 입력하세요.");$("#createCarrierBtn").disabled=true;try{const tpl=await loadTemplate(),ref=await addDoc(collection(db,"carriers"),{name,serviceName:$("#newService").value.trim(),origin:$("#newOrigin").value.trim().toUpperCase(),destination:$("#newDestination").value.trim().toUpperCase(),owner:$("#newOwner").value.trim(),openDate:$("#newOpenDate").value,projectStatus:"정보 수집",completedItems:0,totalItems:tpl.length,createdAt:serverTimestamp(),createdBy:me.email,updatedAt:serverTimestamp(),updatedBy:me.email});let b=writeBatch(db),n=0;for(const t of tpl){b.set(doc(collection(db,"carriers",ref.id,"checklistItems")),{category:t.category,title:t.title,order:t.order,required:t.required!==false,active:true,status:"미확인",completed:false,revision:0,carrierAnswer:"",internalNote:"",owner:"",confirmedDate:"",note:"",createdAt:serverTimestamp(),updatedAt:serverTimestamp(),updatedBy:me.email,updatedByName:me.profile.name||me.email});n++;if(n===450){await b.commit();b=writeBatch(db);n=0}}if(n)await b.commit();$("#newCarrierModal").classList.add("hidden");openCarrier(ref.id)}finally{$("#createCarrierBtn").disabled=false}};
+async function loadTemplate(){
+ try{
+   const s=await getDocs(query(collection(db,"templates","default","items"),orderBy("order")));
+   const saved=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false);
+   return saved.length?saved:DEFAULT_TEMPLATE;
+ }catch(error){
+   console.warn("저장 템플릿을 불러오지 못해 기본 템플릿을 사용합니다:",error);
+   return DEFAULT_TEMPLATE;
+ }
+}
+$("#createCarrierBtn").onclick=async()=>{
+ const name=$("#newName").value.trim();
+ if(!name)return alert("배송사명을 입력하세요.");
+
+ const btn=$("#createCarrierBtn");
+ btn.disabled=true;
+ btn.textContent="생성 중...";
+ setSave("saving","프로젝트 생성 중...");
+
+ try{
+   const tpl=await loadTemplate();
+
+   const ref=await addDoc(collection(db,"carriers"),{
+     name,
+     serviceName:$("#newService").value.trim(),
+     origin:$("#newOrigin").value.trim().toUpperCase(),
+     destination:$("#newDestination").value.trim().toUpperCase(),
+     owner:$("#newOwner").value.trim(),
+     openDate:$("#newOpenDate").value,
+     projectStatus:"정보 수집",
+     completedItems:0,
+     totalItems:tpl.length,
+     createdAt:serverTimestamp(),
+     createdBy:me.email,
+     updatedAt:serverTimestamp(),
+     updatedBy:me.email
+   });
+
+   let b=writeBatch(db),n=0;
+
+   for(const t of tpl){
+     b.set(doc(collection(db,"carriers",ref.id,"checklistItems")),{
+       category:t.category,
+       title:t.title,
+       order:Number(t.order??0),
+       required:t.required!==false,
+       active:true,
+       status:"미확인",
+       completed:false,
+       revision:0,
+       carrierAnswer:"",
+       internalNote:"",
+       owner:"",
+       confirmedDate:"",
+       note:"",
+       createdAt:serverTimestamp(),
+       updatedAt:serverTimestamp(),
+       updatedBy:me.email,
+       updatedByName:me.profile.name||me.email
+     });
+
+     n++;
+     if(n===450){
+       await b.commit();
+       b=writeBatch(db);
+       n=0;
+     }
+   }
+
+   if(n)await b.commit();
+
+   ["newName","newService","newOrigin","newDestination","newOwner","newOpenDate"]
+     .forEach(id=>$("#"+id).value="");
+
+   $("#newCarrierModal").classList.add("hidden");
+   setSave("saved","생성 완료");
+   openCarrier(ref.id);
+
+ }catch(error){
+   console.error("배송사 생성 실패:",error);
+   setSave("failed","생성 실패");
+   alert(
+     "배송사 생성에 실패했습니다.\n\n"+
+     "오류: "+(error.code||error.message)+"\n\n"+
+     "Firebase의 Firestore 규칙이 V3 규칙으로 게시되었는지 확인해 주세요."
+   );
+ }finally{
+   btn.disabled=false;
+   btn.textContent="생성";
+ }
+};
 
 $("#templateBtn").onclick=async()=>{$("#templateModal").classList.remove("hidden");await renderTemplate()};$("#closeTemplateBtn").onclick=()=>$("#templateModal").classList.add("hidden");
 async function renderTemplate(){const s=await getDocs(query(collection(db,"templates","default","items"),orderBy("order")));templateItems=s.docs.map(d=>({id:d.id,...d.data()}));$("#templateList").innerHTML=templateItems.map(t=>`<div class="template-row" data-tid="${t.id}"><input data-tf="category" value="${esc(t.category)}"><input data-tf="title" value="${esc(t.title)}"><input type="number" data-tf="order" value="${t.order||0}"><select data-tf="required"><option value="true" ${t.required!==false?"selected":""}>필수</option><option value="false" ${t.required===false?"selected":""}>선택</option></select><button class="danger" data-del-t>삭제</button></div>`).join("");$$("[data-tid] [data-tf]").forEach(e=>e.onchange=async()=>{const r=e.closest("[data-tid]");let v=e.value;if(e.dataset.tf==="order")v=Number(v);if(e.dataset.tf==="required")v=v==="true";await updateDoc(doc(db,"templates","default","items",r.dataset.tid),{[e.dataset.tf]:v,updatedAt:serverTimestamp()})});$$("[data-del-t]").forEach(b=>b.onclick=async()=>{if(confirm("템플릿 항목을 삭제할까요? 기존 프로젝트 항목은 유지됩니다.")){await deleteDoc(doc(db,"templates","default","items",b.closest("[data-tid]").dataset.tid));renderTemplate()}})}
