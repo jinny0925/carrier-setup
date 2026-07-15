@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Carrier Setup</title>
+<title>Carrier Setup V5</title>
 <style>
 :root{
   --bg:#f5f7fb;--card:#fff;--line:#dfe5ee;--text:#172033;--muted:#697386;
@@ -289,7 +289,23 @@ function subscribeSharedTemplates(){
  );
 }
 
-function subscribeProjects(){if(unsubProjects)unsubProjects();unsubProjects=onSnapshot(query(collection(db,"carriers"),orderBy("createdAt","desc")),s=>{projects=s.docs.map(d=>({id:d.id,...d.data()}));renderSummary();renderFilters();renderProjects()})}
+function subscribeProjects(){
+ if(unsubProjects)unsubProjects();
+
+ unsubProjects=onSnapshot(
+   query(collection(db,"carriers"),orderBy("createdAt","desc")),
+   s=>{
+     projects=s.docs.map(d=>({id:d.id,...d.data()}));
+     renderSummary();
+     renderFilters();
+     renderProjects();
+   },
+   error=>{
+     console.error("프로젝트 목록 수신 실패:",error);
+     alert("프로젝트 목록을 불러오지 못했습니다: "+error.message);
+   }
+ );
+}
 function renderSummary(){const total=projects.length,doing=projects.filter(p=>p.projectStatus!=="완료").length,doneCnt=projects.filter(p=>p.projectStatus==="완료").length,late=projects.filter(overdue).length;$("#summary").innerHTML=[["전체 프로젝트",total],["진행 중",doing],["완료",doneCnt],["지연",late]].map(([a,b])=>`<div class="summary-card"><span class="small">${a}</span><strong>${b}</strong></div>`).join("")}
 function renderFilters(){const v=$("#countryFilter").value,c=[...new Set(projects.map(p=>p.destination).filter(Boolean))].sort();$("#countryFilter").innerHTML='<option value="">전체 국가</option>'+c.map(x=>`<option>${esc(x)}</option>`).join("");$("#countryFilter").value=v}
 function renderProjects(){
@@ -330,7 +346,56 @@ function renderProjects(){
 
  $$("[data-pid]").forEach(r=>r.onclick=()=>openProject(r.dataset.pid));
 }
+
+function hideAllPages(){
+ ["projectPage","detailPage","templatePage","documentsPage","settingsPage"]
+   .forEach(id=>{
+     const page=$("#"+id);
+     if(page)page.classList.add("hidden");
+   });
+
+ $$(".nav-item").forEach(item=>item.classList.remove("active"));
+}
+
+function showProjects(){
+ hideAllPages();
+ $("#projectPage").classList.remove("hidden");
+ $("#navProjects").classList.add("active");
+}
+
+function showTemplates(){
+ hideAllPages();
+ $("#templatePage").classList.remove("hidden");
+ $("#navTemplates").classList.add("active");
+ renderTemplateManager();
+}
+
+function showDocuments(){
+ hideAllPages();
+ $("#documentsPage").classList.remove("hidden");
+ $("#navDocuments").classList.add("active");
+ loadDocuments();
+}
+
+function showSettings(){
+ hideAllPages();
+ $("#settingsPage").classList.remove("hidden");
+ $("#navSettings").classList.add("active");
+ renderSettings();
+}
+
+$("#navProjects").onclick=showProjects;
+$("#navTemplates").onclick=showTemplates;
+$("#navDocuments").onclick=showDocuments;
+$("#navSettings").onclick=showSettings;
+
+$("#backBtn").onclick=showProjects;
+$("#backProjectBtn").onclick=showProjects;
+
 function openProject(id){
+ selectedItemId=null;
+ currentItems=[];
+ renderItemDetail(null);
  hideAllPages();
  $("#detailPage").classList.remove("hidden");
  $("#navProjects").classList.add("active");
