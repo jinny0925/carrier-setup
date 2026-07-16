@@ -85,7 +85,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 <section id="projectPage">
 <div class="page-head"><div><h1>프로젝트 목록</h1><div class="muted">운영 확인 현황과 미진행 항목을 관리합니다.</div></div><button id="newProjectBtn" class="primary">+ 신규 프로젝트</button></div>
 <div id="summary" class="summary"></div>
-<div class="filters"><input id="searchInput" placeholder="프로젝트명 또는 배송사 검색"><select id="typeFilter"><option value="">전체 유형</option><option value="newCarrier">신규 배송사 셋업</option><option value="development">기존 배송사 추가 개발</option><option value="policyChange">도착국 정책 변경 및 운영 배포</option></select><select id="statusFilter"><option value="">전체 상태</option><option>정보 수집</option><option>개발</option><option>테스트</option><option>운영 준비</option><option>완료</option></select><select id="priorityFilter"><option value="">전체 우선순위</option><option>높음</option><option>중간</option><option>낮음</option></select><select id="countryFilter"><option value="">전체 국가</option></select><select id="delayFilter"><option value="">전체 일정</option><option value="overdue">지연만</option></select></div>
+<div class="filters"><input id="searchInput" placeholder="프로젝트명 또는 배송사 검색"><select id="typeFilter"><option value="">전체 유형</option><option value="newCarrier">신규 배송사 셋업</option><option value="development">기존 배송사 추가 개발</option><option value="policyChange">도착국 정책 변경 및 운영 배포</option></select><select id="statusFilter"><option value="">전체 상태</option><option>준비 중</option><option>시작 전</option><option>진행 중</option><option>완료</option></select><select id="priorityFilter"><option value="">전체 우선순위</option><option>높음</option><option>중간</option><option>낮음</option></select><select id="countryFilter"><option value="">전체 국가</option></select><select id="delayFilter"><option value="">전체 일정</option><option value="overdue">지연만</option></select></div>
 <div class="project-table"><table><thead><tr><th>프로젝트명</th><th>배송사</th><th>유형</th><th>우선순위</th><th>국가/노선</th><th>시작일</th><th>완료 목표일</th><th>최종 완료일</th><th>진행률</th><th>상태</th><th>지연</th><th>최근 수정</th></tr></thead><tbody id="projectRows"></tbody></table></div>
 </section>
 <section id="detailPage" class="hidden">
@@ -142,7 +142,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 <label style="grid-column:1/-1">프로젝트 설명 / 확인 필요 내용<textarea id="eDescription" rows="3"></textarea></label>
 <label style="grid-column:1/-1" id="eChangeSummaryWrap" class="hidden">변경 요약<input id="eChangeSummary" placeholder="예: 태국향 관세 면세 한도 변경으로 재확인 필요"></label>
 <label>서비스명<input id="eService"></label>
-<label>프로젝트 상태<select id="eStatus"><option>정보 수집</option><option>개발</option><option>테스트</option><option>운영 준비</option><option>완료</option></select></label>
+<label>프로젝트 상태<input value="체크리스트 진행률로 자동 계산" disabled></label>
 <label>출발국<input id="eOrigin"></label>
 <label>도착국<input id="eDestination"></label>
 <label>우선순위<select id="ePriority"><option value="높음">높음</option><option value="중간">중간</option><option value="낮음">낮음</option></select></label>
@@ -168,7 +168,9 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 const fmt=ts=>{if(!ts)return "-";const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString("ko-KR",{year:"2-digit",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})};
 const done=i=>i.status==="완료"||i.status==="해당 없음"||i.completed===true;const priorityClass=p=>p==="높음"?"b-red":p==="낮음"?"b-low":"b-yellow";
-const overdue=p=>{const target=p.targetDate||p.openDate;return target&&p.projectStatus!=="완료"&&new Date(target+"T23:59:59")<new Date()};
+const projStatus=p=>{const t=p.totalItems||0,d=p.completedItems||0;if(!t)return "준비 중";if(d<=0)return "시작 전";if(d<t)return "진행 중";return "완료"};
+const projStatusClass=s=>s==="완료"?"b-green":s==="진행 중"?"b-blue":"b-gray";
+const overdue=p=>{const target=p.targetDate||p.openDate;return target&&projStatus(p)!=="완료"&&new Date(target+"T23:59:59")<new Date()};
 const itemOverdue=i=>i.itemTargetDate&&!done(i)&&new Date(i.itemTargetDate+"T23:59:59")<new Date();
 const safeUrl=u=>{const v=String(u||"").trim();return /^https?:\/\//i.test(v)?v:""};
 function saveState(t,ok=true){$("#saveState").textContent=t;$("#saveState").className="save-state "+(ok?"ok":"fail");setTimeout(()=>$("#saveState").textContent="",1800)}
@@ -320,7 +322,7 @@ function subscribeProjects(){
    }
  );
 }
-function renderSummary(){const total=projects.length,doing=projects.filter(p=>p.projectStatus!=="완료").length,doneCnt=projects.filter(p=>p.projectStatus==="완료").length,late=projects.filter(overdue).length;$("#summary").innerHTML=[["전체 프로젝트",total],["진행 중",doing],["완료",doneCnt],["지연",late]].map(([a,b])=>`<div class="summary-card"><span class="small">${a}</span><strong>${b}</strong></div>`).join("")}
+function renderSummary(){const total=projects.length,doing=projects.filter(p=>projStatus(p)!=="완료").length,doneCnt=projects.filter(p=>projStatus(p)==="완료").length,late=projects.filter(overdue).length;$("#summary").innerHTML=[["전체 프로젝트",total],["진행 중",doing],["완료",doneCnt],["지연",late]].map(([a,b])=>`<div class="summary-card"><span class="small">${a}</span><strong>${b}</strong></div>`).join("")}
 function renderFilters(){const v=$("#countryFilter").value,c=[...new Set(projects.map(p=>p.destination).filter(Boolean))].sort();$("#countryFilter").innerHTML='<option value="">전체 국가</option>'+c.map(x=>`<option>${esc(x)}</option>`).join("");$("#countryFilter").value=v}
 const FILTER_KEY="carrier-filters";
 function saveFilters(){const f={q:$("#searchInput").value,t:$("#typeFilter").value,s:$("#statusFilter").value,pr:$("#priorityFilter").value,c:$("#countryFilter").value,d:$("#delayFilter").value};try{localStorage.setItem(FILTER_KEY,JSON.stringify(f))}catch(e){}}
@@ -336,7 +338,7 @@ function renderProjects(){
  const rows=projects.filter(p=>
    (`${p.projectName||""} ${p.name||""}`.toLowerCase().includes(q)) &&
    (!t||(p.templateType||"newCarrier")===t) &&
-   (!s||p.projectStatus===s) &&
+   (!s||projStatus(p)===s) &&
    (!pr||(p.priority||"중간")===pr) &&
    (!c||p.destination===c) &&
    (!d||overdue(p))
@@ -344,6 +346,7 @@ function renderProjects(){
  $("#projectRows").innerHTML=rows.length?rows.map(p=>{
    const pc=p.totalItems?Math.round((p.completedItems||0)/p.totalItems*100):0;
    const priority=p.priority||"중간";
+   const ps=projStatus(p);
    return `<tr class="clickable" data-pid="${p.id}">
      <td><strong>${esc(p.projectName||p.serviceName||p.name)}</strong>${p.changeSummary?`<div class="small" style="margin-top:3px">📌 ${esc(p.changeSummary)}</div>`:""}</td>
      <td>${esc(p.name||"-")}</td>
@@ -354,7 +357,7 @@ function renderProjects(){
      <td>${esc(p.targetDate||p.openDate||"-")}</td>
      <td>${esc(p.completedDate||"-")}</td>
      <td><div style="display:grid;grid-template-columns:1fr 40px;gap:8px;align-items:center"><div class="progress"><div style="width:${pc}%"></div></div><span>${pc}%</span></div></td>
-     <td><span class="badge ${p.projectStatus==="완료"?"b-green":"b-gray"}">${esc(p.projectStatus||"정보 수집")}</span></td>
+     <td><span class="badge ${projStatusClass(ps)}">${esc(ps)}</span></td>
      <td>${overdue(p)?'<span class="badge b-orange">지연</span>':'-'}</td>
      <td>${fmt(p.updatedAt)}</td>
    </tr>`;
@@ -490,7 +493,7 @@ function renderItemDetail(i){const head=$("#detailPanelHead");if(!i){if(head)hea
 async function saveItemDetail(id){try{const prev=currentItems.find(x=>x.id===id)||{};const status=$("#dStatus").value;const evidenceRaw=$("#dEvidence").value.trim();const evidenceUrl=evidenceRaw?safeUrl(evidenceRaw):"";if(evidenceRaw&&!evidenceUrl){alert("근거 자료 링크는 http:// 또는 https:// 로 시작해야 합니다.");return}const assignee=$("#dAssignee").value;const assigneeName=assignee?(allowedUsers.find(u=>u.email===assignee)?.name||assignee):"";const next={title:$("#dTitle").value.trim(),status,completed:status==="완료"||status==="해당 없음",assignee,assigneeName,itemTargetDate:$("#dItemTarget").value,checkContent:$("#dCheckContent").value,evidenceUrl,resolution:$("#dResolution").value,confirmedDate:$("#dDate").value};const upd={...next,lastEditedAt:serverTimestamp(),updatedBy:me.email,updatedByName:me.profile.name||me.email};const diff=buildDiff(prev,next);if(diff)upd.log=arrayUnion(logEntry("edit",diff,""));await updateDoc(doc(db,"carriers",currentProject.id,"checklistItems",id),upd);await syncProgress();saveState("저장 완료")}catch(error){fail("저장에 실패했습니다",error)}}
 function buildDiff(prev,next){const labels={title:"항목명",status:"상태",assigneeName:"담당자",itemTargetDate:"목표일",checkContent:"확인 내용",evidenceUrl:"근거 자료",resolution:"최종 정리",confirmedDate:"확인일"};const lines=[];for(const k of Object.keys(labels)){const a=prev[k]||"",b=next[k]||"";if(String(a)!==String(b)){if(["checkContent","resolution"].includes(k))lines.push(`${labels[k]} 수정`);else lines.push(`${labels[k]}: ${a||"-"} → ${b||"-"}`)}}return lines.join("\n")}
 async function addComment(id){const input=$("#dLogText");const text=input.value.trim();if(!text)return;try{await updateDoc(doc(db,"carriers",currentProject.id,"checklistItems",id),{log:arrayUnion(logEntry("comment","",text)),lastEditedAt:serverTimestamp(),updatedBy:me.email,updatedByName:me.profile.name||me.email});input.value="";saveState("로그 등록 완료")}catch(error){fail("로그 등록에 실패했습니다",error)}}
-async function syncProgress(){const snap=await getDocs(collection(db,"carriers",currentProject.id,"checklistItems")),items=snap.docs.map(d=>d.data()),d=items.filter(done).length;await updateDoc(doc(db,"carriers",currentProject.id),{completedItems:d,totalItems:items.length,updatedAt:serverTimestamp(),updatedBy:me.email})}
+async function syncProgress(){const snap=await getDocs(collection(db,"carriers",currentProject.id,"checklistItems")),items=snap.docs.map(d=>d.data()),d=items.filter(done).length,total=items.length;const upd={completedItems:d,totalItems:total,updatedAt:serverTimestamp(),updatedBy:me.email};if(total>0&&d>=total&&!currentProject?.completedDate)upd.completedDate=new Date().toISOString().slice(0,10);await updateDoc(doc(db,"carriers",currentProject.id),upd)}
 async function deleteItem(id){if(!confirm("이 항목을 삭제할까요?"))return;try{await deleteDoc(doc(db,"carriers",currentProject.id,"checklistItems",id));if(selectedItemId===id){selectedItemId=null;renderItemDetail(null)}await syncProgress()}catch(error){fail("삭제에 실패했습니다",error)}}
 async function moveItem(id,dir){try{const item=currentItems.find(x=>x.id===id),same=currentItems.filter(x=>(x.scopeKey||"basic")===(item.scopeKey||"basic")).sort((a,b)=>(a.order||0)-(b.order||0)),idx=same.findIndex(x=>x.id===id),target=same[idx+dir];if(!target)return;const b=writeBatch(db);b.update(doc(db,"carriers",currentProject.id,"checklistItems",item.id),{order:target.order});b.update(doc(db,"carriers",currentProject.id,"checklistItems",target.id),{order:item.order});await b.commit()}catch(error){fail("순서 변경에 실패했습니다",error)}}
 $("#loadDefaultBtn").onclick=async()=>{try{const scopes=currentProject.scopeKeys||[],keys=new Set(currentItems.map(i=>`${i.scopeKey}||${i.title}`));let b=writeBatch(db),n=0;for(const k of scopes){for(const title of (MODULES[k]?.items||[])){if(keys.has(`${k}||${title}`))continue;b.set(doc(collection(db,"carriers",currentProject.id,"checklistItems")),{scopeKey:k,category:MODULES[k].label,title,order:n+100,required:true,status:"미확인",completed:false,createdAt:serverTimestamp()});n++}}if(n){await b.commit();await syncProgress();alert(`${n}개 기본 항목을 추가했습니다.`)}else alert("추가할 기본 항목이 없습니다.")}catch(error){fail("기본 항목 불러오기에 실패했습니다",error)}};
@@ -506,7 +509,7 @@ $("#nextCreateBtn").onclick=async()=>{if(createStep===1){if(!$("#cCarrier").valu
 function updateCreateStep(){for(let i=1;i<=4;i++){$(`#createStep${i}`).classList.toggle("hidden",i!==createStep);$(`.step[data-step="${i}"]`).classList.toggle("active",i===createStep)}$("#prevCreateBtn").style.visibility=createStep===1?"hidden":"visible";$("#nextCreateBtn").textContent=createStep===3?"프로젝트 생성":createStep===4?"프로젝트 열기":"다음 단계"}
 function renderPreview(){if(!createItems.length){$("#previewArea").innerHTML='<div class="small" style="padding:14px">아직 항목이 없습니다. 우측 상단 "+ 새 항목 추가"로 바뀐 부분에 대한 체크 항목을 추가하세요.</div>';return}const groups={};createItems.forEach((i,idx)=>(groups[i.scopeKey]??=[]).push({...i,idx}));$("#previewArea").innerHTML=Object.entries(groups).map(([k,arr])=>`<div class="preview-category"><div class="preview-head">${esc(MODULES[k]?.label||k)}</div>${arr.map(x=>`<div class="preview-item"><input data-preview-title="${x.idx}" value="${esc(x.title)}"><select data-preview-required="${x.idx}"><option value="true" ${x.required?"selected":""}>필수</option><option value="false" ${!x.required?"selected":""}>선택</option></select><button class="danger" data-preview-del="${x.idx}">×</button></div>`).join("")}</div>`).join("");$$("[data-preview-title]").forEach(e=>e.oninput=()=>createItems[+e.dataset.previewTitle].title=e.value);$$("[data-preview-required]").forEach(e=>e.onchange=()=>createItems[+e.dataset.previewRequired].required=e.value==="true");$$("[data-preview-del]").forEach(e=>e.onclick=()=>{createItems.splice(+e.dataset.previewDel,1);renderPreview()})}
 $("#addPreviewItemBtn").onclick=()=>{const k=(createScopes.size?[...createScopes][0]:"etc");const title=prompt("추가할 항목명을 입력하세요.");if(!title)return;createItems.push({scopeKey:k,title,required:false,order:999});renderPreview()};
-async function createProject(){try{const blank=allowsBlank($("#cType").value)&&createStartMode==="blank";const scopeKeys=blank?[...new Set(createItems.map(i=>i.scopeKey))]:[...createScopes];const ref=await addDoc(collection(db,"carriers"),{name:$("#cCarrier").value.trim(),projectName:$("#cProject").value.trim(),description:$("#cDescription").value.trim(),templateType:$("#cType").value,changeSummary:$("#cType").value==="policyChange"?$("#cChangeSummary").value.trim():"",origin:$("#cOrigin").value.trim().toUpperCase(),destination:$("#cDestination").value.trim().toUpperCase(),serviceName:$("#cService").value.trim(),priority:$("#cPriority").value,startDate:$("#cStartDate").value,targetDate:$("#cTargetDate").value,completedDate:$("#cCompletedDate").value,projectStatus:"정보 수집",scopeKeys,completedItems:0,totalItems:createItems.length,createdAt:serverTimestamp(),createdBy:me.email,updatedAt:serverTimestamp(),updatedBy:me.email});let b=writeBatch(db);createItems.forEach((i,idx)=>b.set(doc(collection(db,"carriers",ref.id,"checklistItems")),{scopeKey:i.scopeKey,category:MODULES[i.scopeKey]?.label||i.scopeKey,title:i.title,order:idx,required:i.required,status:"미확인",completed:false,assignee:"",assigneeName:"",itemTargetDate:"",checkContent:"",evidenceUrl:"",resolution:"",confirmedDate:"",log:[],createdAt:serverTimestamp()}));await b.commit();currentProject={id:ref.id};saveState("프로젝트 생성 완료")}catch(error){fail("프로젝트 생성에 실패했습니다",error)}}
+async function createProject(){try{const blank=allowsBlank($("#cType").value)&&createStartMode==="blank";const scopeKeys=blank?[...new Set(createItems.map(i=>i.scopeKey))]:[...createScopes];const ref=await addDoc(collection(db,"carriers"),{name:$("#cCarrier").value.trim(),projectName:$("#cProject").value.trim(),description:$("#cDescription").value.trim(),templateType:$("#cType").value,changeSummary:$("#cType").value==="policyChange"?$("#cChangeSummary").value.trim():"",origin:$("#cOrigin").value.trim().toUpperCase(),destination:$("#cDestination").value.trim().toUpperCase(),serviceName:$("#cService").value.trim(),priority:$("#cPriority").value,startDate:$("#cStartDate").value,targetDate:$("#cTargetDate").value,completedDate:$("#cCompletedDate").value,scopeKeys,completedItems:0,totalItems:createItems.length,createdAt:serverTimestamp(),createdBy:me.email,updatedAt:serverTimestamp(),updatedBy:me.email});let b=writeBatch(db);createItems.forEach((i,idx)=>b.set(doc(collection(db,"carriers",ref.id,"checklistItems")),{scopeKey:i.scopeKey,category:MODULES[i.scopeKey]?.label||i.scopeKey,title:i.title,order:idx,required:i.required,status:"미확인",completed:false,assignee:"",assigneeName:"",itemTargetDate:"",checkContent:"",evidenceUrl:"",resolution:"",confirmedDate:"",log:[],createdAt:serverTimestamp()}));await b.commit();currentProject={id:ref.id};saveState("프로젝트 생성 완료")}catch(error){fail("프로젝트 생성에 실패했습니다",error)}}
 $("#scopeEditBtn").onclick=()=>{const selected=new Set(currentProject.scopeKeys||[]);$("#scopeModal").classList.remove("hidden");$("#editScopeGrid").innerHTML=Object.entries(MODULES).map(([k,m])=>`<label class="scope-card ${selected.has(k)?"selected":""}"><input type="checkbox" data-edit-scope="${k}" ${selected.has(k)?"checked":""}><strong>${esc(m.label)}</strong><span class="small">${esc(m.desc)}</span></label>`).join("");$$("[data-edit-scope]").forEach(e=>e.onchange=()=>e.closest(".scope-card").classList.toggle("selected",e.checked))};
 $("#closeScopeBtn").onclick=()=>$("#scopeModal").classList.add("hidden");
 $("#saveScopeBtn").onclick=async()=>{
@@ -560,7 +563,6 @@ $("#editProjectBtn").onclick=()=>{
  $("#eProject").value=currentProject.projectName||"";
  $("#eType").value=currentProject.templateType||"newCarrier";
  $("#eService").value=currentProject.serviceName||"";
- $("#eStatus").value=currentProject.projectStatus||"정보 수집";
  $("#eOrigin").value=currentProject.origin||"";
  $("#eDestination").value=currentProject.destination||"";
  $("#ePriority").value=currentProject.priority||"중간";$("#eStartDate").value=currentProject.startDate||"";$("#eTargetDate").value=currentProject.targetDate||currentProject.openDate||"";$("#eCompletedDate").value=currentProject.completedDate||"";
@@ -570,7 +572,7 @@ $("#editProjectBtn").onclick=()=>{
  $("#editProjectModal").classList.remove("hidden");
 };
 $("#eType").onchange=()=>$("#eChangeSummaryWrap").classList.toggle("hidden",$("#eType").value!=="policyChange");
-$("#closeEditProjectBtn").onclick=()=>$("#editProjectModal").classList.add("hidden");$("#eStatus").onchange=()=>{if($("#eStatus").value==="완료"&&!$("#eCompletedDate").value)$("#eCompletedDate").value=new Date().toISOString().slice(0,10)};
+$("#closeEditProjectBtn").onclick=()=>$("#editProjectModal").classList.add("hidden");
 $("#saveProjectInfoBtn").onclick=async()=>{
  if(!currentProject)return;
  const carrierName=$("#eCarrier").value.trim();
@@ -585,15 +587,12 @@ $("#saveProjectInfoBtn").onclick=async()=>{
      templateType:$("#eType").value,
      changeSummary:$("#eType").value==="policyChange"?$("#eChangeSummary").value.trim():"",
      serviceName:$("#eService").value.trim(),
-     projectStatus:$("#eStatus").value,
      origin:$("#eOrigin").value.trim().toUpperCase(),
      destination:$("#eDestination").value.trim().toUpperCase(),
      priority:$("#ePriority").value,
      startDate:$("#eStartDate").value,
      targetDate:$("#eTargetDate").value,
-     completedDate:$("#eStatus").value==="완료"
-       ? ($("#eCompletedDate").value || new Date().toISOString().slice(0,10))
-       : $("#eCompletedDate").value,
+     completedDate:$("#eCompletedDate").value,
      updatedAt:serverTimestamp(),
      updatedBy:me.email
    });
