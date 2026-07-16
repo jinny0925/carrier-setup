@@ -28,13 +28,9 @@ service cloud.firestore {
     }
     match /carriers/{projectId} {
       allow read, create, update, delete: if allowed();
+      // 진행 로그는 체크 항목 문서 안의 log 배열에 저장되므로 별도 규칙이 필요 없습니다.
       match /checklistItems/{itemId} {
         allow read, create, update, delete: if allowed();
-        // 변경 이력 (신규): 기록은 추가만, 수정/삭제는 막아 감사 로그를 보존합니다.
-        match /history/{historyId} {
-          allow read, create: if allowed();
-          allow update, delete: if false;
-        }
       }
     }
     // 자료실의 collectionGroup("checklistItems") 조회 허용
